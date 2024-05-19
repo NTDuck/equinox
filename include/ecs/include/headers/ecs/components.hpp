@@ -18,8 +18,8 @@ namespace ECS {
     template <typename Component>
     class ComponentArray : public IComponentArray {
     public:
-        inline std::size_t size() { return mSize; }
-        inline bool empty() { return mSize == 0; }
+        inline std::size_t Size() { return mSize; }
+        inline bool Empty() { return mSize == 0; }
 
         void InsertComponent(EntityID, Component const&);
         void EraseComponent(EntityID);

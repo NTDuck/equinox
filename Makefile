@@ -17,8 +17,7 @@ ECS_MODULE = ecs
 SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp) $(wildcard $(INCLUDE_DIR)/$(ECS_MODULE)/$(SRC_DIR)/*.cpp) $(wildcard $(INCLUDE_DIR)/$(ECS_MODULE)/$(SRC_DIR)/*/*.cpp)
 
 # Includes
-# INCLUDES := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/sdl2 -I$(INCLUDE_DIR)/headers
-INCLUDES := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/$(ECS_MODULE)/$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/$(ECS_MODULE)/$(INCLUDE_DIR)/templates
+INCLUDES := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/templates -I$(INCLUDE_DIR)/$(ECS_MODULE)/$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/$(ECS_MODULE)/$(INCLUDE_DIR)/templates -I$(INCLUDE_DIR)/sdl2
 
 # C preprocessor settings
 CPPFLAGS = $(INCLUDES) -MMD -MP
@@ -33,7 +32,7 @@ LDFLAGS =
 
 # Libraries to link
 # LDLIBS = -l"SDL2" -l"SDL2_image" -l"SDL2_ttf" -l"SDL2_mixer"
-LDLIBS =
+LDLIBS = -l"SDL2"
 
 # Target OS detection
 ifeq ($(OS),Windows_NT)   # OS is a preexisting environment variable on Windows
@@ -57,6 +56,7 @@ ifeq ($(OS),windows)   # Windows 32-bit and 64-bit common settings
 	INCLUDES +=
 	LDFLAGS += -static-libgcc -static-libstdc++
 	# LDLIBS := -l"mingw32" -l"SDL2main" $(LDLIBS) -l"zlib"
+	LDLIBS := -l"mingw32" -l"SDL2main" $(LDLIBS)
 
 	LIB_PATH = -L"lib"
 	EXEC := $(EXEC).exe
