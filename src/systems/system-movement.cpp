@@ -1,16 +1,16 @@
 #ifndef SYSTEM_MOVEMENT_CPP
 #define SYSTEM_MOVEMENT_CPP
 
-#include <systems.hpp>
-
 #include <algorithm>
-#include <coordinators.hpp>
+
+#include <components.hpp>
+#include <systems.hpp>
 
 
 void MovementSystem::Integrate(std::uint32_t dt) {
     for (auto const& entityID : mEntityIDs) {
-        auto& transform = global::coordinator.GetComponent<components::Transform>(entityID);
-        auto& motion = global::coordinator.GetComponent<components::Motion>(entityID);
+        auto& transform = global::ECSCoordinator.GetComponent<component::Transform>(entityID);
+        auto& motion = global::ECSCoordinator.GetComponent<component::Motion>(entityID);
 
         transform.position.x += motion.velocity.x * dt;
         transform.position.y += motion.velocity.y * dt;

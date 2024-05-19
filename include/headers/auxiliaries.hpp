@@ -2,40 +2,20 @@
 #define AUXILIARIES_HPP
 
 #include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <limits>
-
-#include <array>
-#include <bitset>
-#include <string_view>
-
 #include <iostream>
 
+#include <ecs/ecs.hpp>
 
-typedef struct P {
+
+typedef struct SDL_Point {
     int x, y;
-} P;
+} SDL_Point;
 
-namespace type {
-    /* Aliases */
-    using EntityID = std::uint32_t;
-    using ComponentID = std::uint8_t;
-    using Point = P;
-}
+using Point = SDL_Point;
 
 namespace config {
-    /* Constants */
-    static constexpr type::EntityID kMaxEntityID = 1e3;
-    static constexpr type::ComponentID kMaxComponentID = 32;
-
-    static constexpr type::Point kMapLowerBound = { 0, 0 };
-    static constexpr type::Point kMapHigherBound = { 128, 128 };
-}
-
-namespace type {
-    /* Aliases */
-    using Signature = std::bitset<config::kMaxComponentID>;
+    static constexpr Point kMapLowerBound = { 0, 0 };
+    static constexpr Point kMapHigherBound = { 128, 128 };
 }
 
 namespace utility {
@@ -61,6 +41,10 @@ namespace utility {
     public:
         static constexpr std::string_view value { mArr.data(), mArr.size() - 1 };
     };
+}
+
+namespace global {
+    extern ECS::Coordinator ECSCoordinator;
 }
 
 namespace logger {

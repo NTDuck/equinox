@@ -1,22 +1,23 @@
-#ifndef MASTER_COORDINATOR_CPP
-#define MASTER_COORDINATOR_CPP
+#ifndef APPLICATION_CPP
+#define APPLICATION_CPP
 
-#include <coordinators.hpp>
+#include <components.hpp>
+#include <application.hpp>
 #include <chrono>
 
 
-void MasterCoordinator::Start() {
+void Application::Start() {
     Initialize();
     GameLoop();
 }
 
-void MasterCoordinator::Initialize() {
+void Application::Initialize() {
     RegisterComponents();
     RegisterSystems();
     CreateEntities();
 }
 
-void MasterCoordinator::GameLoop() const {
+void Application::GameLoop() const {
     std::pair<std::chrono::steady_clock::time_point, std::chrono::steady_clock::time_point> frameTimePoint;
     std::uint32_t dt = 0;
 
@@ -33,41 +34,41 @@ void MasterCoordinator::GameLoop() const {
         dt = 1 + std::chrono::duration_cast<std::chrono::milliseconds>(frameTimePoint.second - frameTimePoint.first).count();
 
         // Rudimentary logging to show that player actually moves
-        auto playerTransform = global::coordinator.GetComponent<components::Transform>(mPlayerID);
+        auto playerTransform = global::ECSCoordinator.GetComponent<component::Transform>(mPlayerID);
         std::cout << "(" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
         if (playerTransform.position.x == config::kMapHigherBound.x) break;
     }
 }
 
-void MasterCoordinator::RegisterComponents() const {
-    global::coordinator.RegisterComponent<components::Transform>();
-    global::coordinator.RegisterComponent<components::Motion>();
+void Application::RegisterComponents() const {
+    global::ECSCoordinator.RegisterComponent<component::Transform>();
+    global::ECSCoordinator.RegisterComponent<component::Motion>();
 }
 
-void MasterCoordinator::RegisterSystems() {
-    mMovementSystem = global::coordinator.RegisterSystem<MovementSystem>();
-    type::Signature movementSystemSignature;
+void Application::RegisterSystems() {
+    mMovementSystem = global::ECSCoordinator.RegisterSystem<MovementSystem>();
+    ECS::Signature movementSystemSignature;
 
-    movementSystemSignature.set(global::coordinator.GetComponentID<components::Transform>());
-    movementSystemSignature.set(global::coordinator.GetComponentID<components::Motion>());
+    movementSystemSignature.set(global::ECSCoordinator.GetComponentID<component::Transform>());
+    movementSystemSignature.set(global::ECSCoordinator.GetComponentID<component::Motion>());
 
-    global::coordinator.SetSystemSignature<MovementSystem>(movementSystemSignature);
+    global::ECSCoordinator.SetSystemSignature<MovementSystem>(movementSystemSignature);
 }
 
-void MasterCoordinator::CreateEntities() {
-    mPlayerID = global::coordinator.CreateEntity();
+void Application::CreateEntities() {
+    mPlayerID = global::ECSCoordinator.CreateEntity();
 
-    components::Transform playerTransform;
+    component::Transform playerTransform;
     playerTransform.position.x = (config::kMapHigherBound.x - config::kMapLowerBound.x) / 2;
     playerTransform.position.y = (config::kMapHigherBound.y - config::kMapLowerBound.y) / 2;
-    global::coordinator.InsertComponent(mPlayerID, playerTransform);
+    global::ECSCoordinator.InsertComponent(mPlayerID, playerTransform);
 
-    components::Motion playerMotion;
+    component::Motion playerMotion;
     playerMotion.velocity.x = 1;
     playerMotion.velocity.y = 1;
     playerMotion.acceleration.x = 0;
     playerMotion.acceleration.y = 0;
-    global::coordinator.InsertComponent(mPlayerID, playerMotion);
+    global::ECSCoordinator.InsertComponent(mPlayerID, playerMotion);
 }
 
 

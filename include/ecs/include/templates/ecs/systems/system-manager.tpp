@@ -1,11 +1,12 @@
-#ifndef SYSTEM_MANAGER_TPP
-#define SYSTEM_MANAGER_TPP
+#ifndef ECS_SYSTEM_MANAGER_TPP
+#define ECS_SYSTEM_MANAGER_TPP
 
-#include <systems.hpp>
+#include <cassert>
+#include <ecs/systems.hpp>
 
 
 template <typename System>
-std::shared_ptr<System> SystemManager::RegisterSystem() {
+std::shared_ptr<System> ECS::SystemManager::RegisterSystem() {
     std::string_view systemTypeName = typeid(System).name();
     assert(mSystems.find(systemTypeName) == mSystems.end() && "Registering system more than once");
 
@@ -15,7 +16,7 @@ std::shared_ptr<System> SystemManager::RegisterSystem() {
 }
 
 template <typename System>
-void SystemManager::SetSignature(type::Signature const& signature) {
+void ECS::SystemManager::SetSignature(Signature const& signature) {
     std::string_view systemTypeName = typeid(System).name();
     assert(mSystems.find(systemTypeName) != mSystems.end() && "System used before registered");
 

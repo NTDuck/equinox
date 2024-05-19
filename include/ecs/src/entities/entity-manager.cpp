@@ -1,42 +1,42 @@
-#ifndef ENTITY_MANAGER_CPP
-#define ENTITY_MANAGER_CPP
+#ifndef ECS_ENTITY_MANAGER_CPP
+#define ECS_ENTITY_MANAGER_CPP
 
-#include <entities.hpp>
-#include <auxiliaries.hpp>
+#include <cassert>
+#include <ecs/entities.hpp>
 
 
-EntityManager::EntityManager() {
-    for (type::EntityID id = 0; id < config::kMaxEntityID; ++id) mAvailableEntities.push(id);
+ECS::EntityManager::EntityManager() {
+    for (EntityID id = 0; id < config::kMaxEntityID; ++id) mAvailableEntityIDs.push(id);
 }
 
-type::EntityID EntityManager::CreateEntity() {
+ECS::EntityID ECS::EntityManager::CreateEntity() {
     assert(mEntityCount < config::kMaxEntityID && "Entity limit exceeded");
 
     // Retrieve ID from the front of queue
-    auto entityID = mAvailableEntities.front();
-    mAvailableEntities.pop();
+    auto entityID = mAvailableEntityIDs.front();
+    mAvailableEntityIDs.pop();
     ++mEntityCount;
 
     return entityID;
 }
 
-void EntityManager::EraseEntity(type::EntityID entityID) {
+void ECS::EntityManager::EraseEntity(EntityID entityID) {
     assert(entityID < config::kMaxEntityID && "Entity out of range");
 
     // Invalidate signature of deleted entity
     mEntityToSignatureMap[entityID].reset();
 
     // Place its ID at the back of queue
-    mAvailableEntities.push(entityID);
+    mAvailableEntityIDs.push(entityID);
     --mEntityCount;
 }
 
-type::Signature const& EntityManager::GetSignature(type::EntityID entityID) const {
+ECS::Signature const& ECS::EntityManager::GetSignature(EntityID entityID) const {
     assert(entityID < config::kMaxEntityID && "Entity out of range");
     return mEntityToSignatureMap[entityID];
 }
 
-void EntityManager::SetSignature(type::EntityID entityID, type::Signature const& signature) {
+void ECS::EntityManager::SetSignature(EntityID entityID, Signature const& signature) {
     assert(entityID < config::kMaxEntityID && "Entity out of range");
     mEntityToSignatureMap[entityID] = signature;
 }

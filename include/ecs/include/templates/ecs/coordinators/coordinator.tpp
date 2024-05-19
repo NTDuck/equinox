@@ -1,16 +1,16 @@
 #ifndef ECS_COORDINATOR_TPP
 #define ECS_COORDINATOR_TPP
 
-#include <coordinators.hpp>
+#include <ecs/coordinators.hpp>
 
 
 template <typename Component>
-void ECSCoordinator::RegisterComponent() const {
+void ECS::Coordinator::RegisterComponent() const {
     mComponentManager->RegisterComponent<Component>();
 }
 
 template <typename Component>
-void ECSCoordinator::InsertComponent(type::EntityID entityID, Component const& component) const {
+void ECS::Coordinator::InsertComponent(EntityID entityID, Component const& component) const {
     mComponentManager->InsertComponent<Component>(entityID, component);
 
     auto signature = mEntityManager->GetSignature(entityID);
@@ -21,7 +21,7 @@ void ECSCoordinator::InsertComponent(type::EntityID entityID, Component const& c
 }
 
 template <typename Component>
-void ECSCoordinator::EraseComponent(type::EntityID entityID) const {
+void ECS::Coordinator::EraseComponent(EntityID entityID) const {
     mComponentManager->EraseComponent<Component>(entityID);
 
     auto signature = mEntityManager->GetSignature(entityID);
@@ -32,22 +32,22 @@ void ECSCoordinator::EraseComponent(type::EntityID entityID) const {
 }
 
 template <typename Component>
-Component& ECSCoordinator::GetComponent(type::EntityID entityID) const {
+Component& ECS::Coordinator::GetComponent(EntityID entityID) const {
     return mComponentManager->GetComponent<Component>(entityID);
 }
 
 template <typename Component>
-type::ComponentID ECSCoordinator::GetComponentID() const {
+ECS::ComponentID ECS::Coordinator::GetComponentID() const {
     return mComponentManager->GetComponentID<Component>();
 }
 
 template <typename System>
-std::shared_ptr<System> ECSCoordinator::RegisterSystem() const {
+std::shared_ptr<System> ECS::Coordinator::RegisterSystem() const {
     return mSystemManager->RegisterSystem<System>();
 }
 
 template <typename System>
-void ECSCoordinator::SetSystemSignature(type::Signature const& signature) const {
+void ECS::Coordinator::SetSystemSignature(Signature const& signature) const {
     mSystemManager->SetSignature<System>(signature);
 }
 

@@ -34,3 +34,5 @@
 # Purposefully ignored files
 .*
 .*.*
+!.gitkeep
+!.vscode

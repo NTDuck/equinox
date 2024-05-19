@@ -9,14 +9,16 @@ EXEC = equinox
 BUILD_DIR = build
 ASSETS_DIR = assets
 
-# Sources
 SRC_DIR = src
-SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp) $(wildcard $(SRC_DIR)/*/*/*.cpp)   # Recursively search inside source directory within 3 first levels. Verbose syntax since some platforms might not support `$(sort $(shell find $(SRC_DIR) -name '*.cpp'))`
+INCLUDE_DIR = include
+ECS_MODULE = ecs
+
+# Sources
+SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp) $(wildcard $(INCLUDE_DIR)/$(ECS_MODULE)/$(SRC_DIR)/*.cpp) $(wildcard $(INCLUDE_DIR)/$(ECS_MODULE)/$(SRC_DIR)/*/*.cpp)
 
 # Includes
-INCLUDE_DIR = include
 # INCLUDES := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/sdl2 -I$(INCLUDE_DIR)/headers
-INCLUDES := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/templates
+INCLUDES := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/$(ECS_MODULE)/$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/$(ECS_MODULE)/$(INCLUDE_DIR)/templates
 
 # C preprocessor settings
 CPPFLAGS = $(INCLUDES) -MMD -MP

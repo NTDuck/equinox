@@ -1,9 +1,9 @@
-#include <coordinators.hpp>
+#include <application.hpp>
 
 
-auto main(void) -> std::int32_t {
-    MasterCoordinator coordinator;
-    coordinator.Start();
+extern "C" auto main(int, char**) -> std::int32_t {
+    Application app;
+    app.Start();
 
     return 0;
 }

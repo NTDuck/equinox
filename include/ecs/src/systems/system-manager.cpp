@@ -1,17 +1,17 @@
-#ifndef SYSTEM_MANAGER_CPP
-#define SYSTEM_MANAGER_CPP
+#ifndef ECS_SYSTEM_MANAGER_CPP
+#define ECS_SYSTEM_MANAGER_CPP
 
-#include <systems.hpp>
+#include <ecs/systems.hpp>
 
 
-void SystemManager::EraseEntityCallback(type::EntityID entityID) const {
+void ECS::SystemManager::EraseEntityCallback(EntityID entityID) const {
     for (auto const& pair : mSystems) {
         auto const& system = pair.second;
         system->mEntityIDs.erase(entityID);
     }
 }
 
-void SystemManager::UpdateSignatureCallback(type::EntityID entityID, type::Signature const& entitySignature) const {
+void ECS::SystemManager::UpdateSignatureCallback(EntityID entityID, Signature const& entitySignature) const {
     for (auto& pair : mSystems) {
         auto const& systemTypeName = pair.first;
         auto const& system = pair.second;

@@ -1,27 +1,24 @@
 #ifndef ECS_COORDINATOR_CPP
 #define ECS_COORDINATOR_CPP
 
-#include <coordinators.hpp>
+#include <ecs/coordinators.hpp>
 
 
-ECSCoordinator::ECSCoordinator() {
+ECS::Coordinator::Coordinator() {
     mEntityManager = std::make_unique<EntityManager>();
     mComponentManager = std::make_unique<ComponentManager>();
     mSystemManager = std::make_unique<SystemManager>();
 }
 
-type::EntityID ECSCoordinator::CreateEntity() const {
+ECS::EntityID ECS::Coordinator::CreateEntity() const {
     return mEntityManager->CreateEntity();
 }
 
-void ECSCoordinator::EraseEntity(type::EntityID entityID) const {
+void ECS::Coordinator::EraseEntity(EntityID entityID) const {
     mEntityManager->EraseEntity(entityID);
     mComponentManager->EraseEntityCallback(entityID);
     mSystemManager->EraseEntityCallback(entityID);
 }
-
-
-ECSCoordinator global::coordinator;
 
 
 #endif
