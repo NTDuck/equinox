@@ -29,8 +29,7 @@ class Application {
 
     class Window : public Dependency<SDL_Window, decltype(SDL_CreateWindow), decltype(SDL_DestroyWindow)> {
     public:
-        template <typename... Args>
-        void Initialize(Args&&... args);
+        void Initialize(std::string_view const&, Rect const&, std::uint32_t);
 
         std::uint32_t GetID() const;
 
@@ -40,6 +39,8 @@ class Application {
 
     class Renderer : public Dependency<SDL_Renderer, decltype(SDL_CreateRenderer), decltype(SDL_DestroyRenderer)> {
     public:
+        void Initialize(Window const&, std::int32_t, std::uint32_t);
+
         void Clear() const;
         void Integrate() const;
 

@@ -53,8 +53,8 @@ void Application::InitializeExternalDependencies() {
     SDL_Init(config::sdl::kInitFlags);
     for (auto const& pair : config::sdl::kHints) SDL_SetHint(pair.first.data(), pair.second.data());
 
-    mWindow.Initialize(SDL_CreateWindow, SDL_DestroyWindow, config::sdl::window::kTitle.data(), config::sdl::window::kSize.x, config::sdl::window::kSize.y, config::sdl::window::kSize.w, config::sdl::window::kSize.h, config::sdl::window::kInitFlags);
-    mRenderer.Initialize(SDL_CreateRenderer, SDL_DestroyRenderer, mWindow.Get(), config::sdl::renderer::kDriverIndex, config::sdl::renderer::kInitFlags);
+    mWindow.Initialize(config::sdl::window::kTitle, config::sdl::window::kSize, config::sdl::window::kInitFlags);
+    mRenderer.Initialize(mWindow, config::sdl::renderer::kDriverIndex, config::sdl::renderer::kInitFlags);
 }
 
 void Application::RegisterComponents() const {

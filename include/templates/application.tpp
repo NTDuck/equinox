@@ -27,11 +27,5 @@ void Application::Dependency<T, Allocator, Deleter>::Initialize(Allocator alloca
     mPointer = std::shared_ptr<T>(rawPointer, deleter);    
 }
 
-template <typename... Args>
-void Application::Window::Initialize(Args&&... args) {
-    Application::Dependency<SDL_Window, decltype(SDL_CreateWindow), decltype(SDL_DestroyWindow)>::Initialize(std::forward<Args>(args)...);
-    mID = SDL_GetWindowID(Get());
-}
-
 
 #endif
