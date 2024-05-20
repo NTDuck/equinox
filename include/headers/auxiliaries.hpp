@@ -50,6 +50,8 @@ namespace config {
     static constexpr Point kMapLowerBound = { 0, 0 };
     static constexpr Point kMapHigherBound = { 128, 128 };
 
+    static constexpr double kFPS = 60;
+
     namespace sdl {
         static constexpr std::uint32_t kInitFlags = SDL_INIT_EVENTS | SDL_INIT_TIMER;
         // static constexpr std::uint32_t kInitFlagsImage = IMG_INIT_PNG;

@@ -80,6 +80,27 @@ class Application {
         std::uint64_t mStartTicks, mPausedTicks;
     };
 
+    class FPSRegulator : Timer {
+    public:
+        void SetFPS(double);
+        double GetFPS() const noexcept;
+
+        void PreIntegrate();
+        void PostIntegrate() const;
+
+    private:
+        std::uint32_t mTicksPerFrame;
+    };
+
+    class FPSCalculator : Timer {
+    public:
+        void Start();
+        double GetFPS() noexcept;
+
+    private:
+        std::uint64_t mFrames = 0;
+    };
+
     public:
         inline Application() = default;
         inline ~Application() = default;
@@ -88,7 +109,7 @@ class Application {
 
     private:
         void Initialize();
-        void StartGameLoop() const;
+        void StartGameLoop();
 
         void InitializeDependencies();
         void RegisterComponents() const;
@@ -100,7 +121,10 @@ class Application {
 
         Window mWindow;
         Renderer mRenderer;
+
         Timer mTimer;
+        FPSRegulator mFPSRegulator;
+        FPSCalculator mFPSCalculator;
 };
 
 

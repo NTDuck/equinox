@@ -18,8 +18,8 @@ void Application::Initialize() {
     CreateEntities();
 }
 
-void Application::StartGameLoop() const {
-    std::uint32_t dt = 0;
+void Application::StartGameLoop() {
+    std::uint64_t dt = 0;
 
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
@@ -28,19 +28,23 @@ void Application::StartGameLoop() const {
     mRenderer.SetDrawColor({ 0xf2, 0xf3, 0xf4, SDL_ALPHA_OPAQUE });
 
     while (true) {
+        mFPSRegulator.PreIntegrate();
+
         mRenderer.Clear();
 
         mMovementSystem->Integrate(dt);
-        
+
         // Rudimentary logging to show that player actually moves
         auto playerTransform = global::ECSCoordinator.GetComponent<component::Transform>(mPlayerID);
-        std::cout << "(" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
-        if (playerTransform.position.x == config::kMapHigherBound.x) break;
+        if (playerTransform.position.x != config::kMapHigherBound.x) std::cout << "(" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
 
         mRenderer.FillRect();
         mRenderer.Integrate();
 
         dt = mTimer.GetTicks() - dt;
+        
+        std::cout << mFPSCalculator.GetFPS() << std::endl;
+        mFPSRegulator.PostIntegrate();
     }
 }
 
@@ -51,6 +55,8 @@ void Application::InitializeDependencies() {
     mWindow.Initialize(config::sdl::window::kTitle, config::sdl::window::kSize, config::sdl::window::kInitFlags);
     mRenderer.Initialize(mWindow, config::sdl::renderer::kDriverIndex, config::sdl::renderer::kInitFlags);
     mTimer.Start();
+    mFPSCalculator.Start();
+    mFPSRegulator.SetFPS(config::kFPS);
 }
 
 void Application::RegisterComponents() const {

@@ -51,4 +51,35 @@ Application::Timer::State Application::Timer::GetState() const noexcept {
     return mState;
 }
 
+void Application::FPSRegulator::SetFPS(double FPS) {
+    mTicksPerFrame = 1000 / FPS;
+}
+
+/**
+ * @note At least one call to `SetFPS()` must be made prior.
+*/
+double Application::FPSRegulator::GetFPS() const noexcept {
+    return 1000 / mTicksPerFrame;
+}
+
+void Application::FPSRegulator::PreIntegrate() {
+    Start();
+}
+
+void Application::FPSRegulator::PostIntegrate() const {
+    auto ticksOfCurrentFrame = GetTicks();
+    if (ticksOfCurrentFrame < mTicksPerFrame) SDL_Delay(mTicksPerFrame - ticksOfCurrentFrame);
+}
+
+void Application::FPSCalculator::Start() {
+    Timer::Start();
+}
+
+/**
+ * @note Called once per frame.
+*/
+double Application::FPSCalculator::GetFPS() noexcept {
+    return mFrames++ / (GetTicks() / 1000.f);
+}
+
 #endif
