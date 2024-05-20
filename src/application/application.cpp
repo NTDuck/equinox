@@ -4,7 +4,6 @@
 #include <application.hpp>
 
 #include <components.hpp>
-#include <chrono>
 
 
 void Application::Start() {
@@ -13,14 +12,13 @@ void Application::Start() {
 }
 
 void Application::Initialize() {
-    InitializeExternalDependencies();
+    InitializeDependencies();
     RegisterComponents();
     RegisterSystems();
     CreateEntities();
 }
 
 void Application::StartGameLoop() const {
-    std::pair<std::chrono::steady_clock::time_point, std::chrono::steady_clock::time_point> frameTimePoint;
     std::uint32_t dt = 0;
 
     std::ios_base::sync_with_stdio(false);
@@ -32,13 +30,8 @@ void Application::StartGameLoop() const {
     while (true) {
         mRenderer.Clear();
 
-        frameTimePoint.first = std::chrono::steady_clock::now();
-
         mMovementSystem->Integrate(dt);
         
-        frameTimePoint.second = std::chrono::steady_clock::now();
-        dt = 1 + std::chrono::duration_cast<std::chrono::milliseconds>(frameTimePoint.second - frameTimePoint.first).count();
-
         // Rudimentary logging to show that player actually moves
         auto playerTransform = global::ECSCoordinator.GetComponent<component::Transform>(mPlayerID);
         std::cout << "(" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
@@ -46,15 +39,18 @@ void Application::StartGameLoop() const {
 
         mRenderer.FillRect();
         mRenderer.Integrate();
+
+        dt = mTimer.GetTicks() - dt;
     }
 }
 
-void Application::InitializeExternalDependencies() {
+void Application::InitializeDependencies() {
     SDL_Init(config::sdl::kInitFlags);
     for (auto const& pair : config::sdl::kHints) SDL_SetHint(pair.first.data(), pair.second.data());
 
     mWindow.Initialize(config::sdl::window::kTitle, config::sdl::window::kSize, config::sdl::window::kInitFlags);
     mRenderer.Initialize(mWindow, config::sdl::renderer::kDriverIndex, config::sdl::renderer::kInitFlags);
+    mTimer.Start();
 }
 
 void Application::RegisterComponents() const {

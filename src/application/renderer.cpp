@@ -5,7 +5,7 @@
 
 
 void Application::Renderer::Initialize(Application::Window const& window, std::int32_t index, std::uint32_t flags) {
-    Application::Dependency<SDL_Renderer, decltype(SDL_CreateRenderer), decltype(SDL_DestroyRenderer)>::Initialize(SDL_CreateRenderer, SDL_DestroyRenderer, window.Get(), index, flags);
+    Application::Dependency<SDL_Renderer, decltype(SDL_CreateRenderer), decltype(SDL_DestroyRenderer)>::Initialize<SDL_CreateRenderer, SDL_DestroyRenderer>(window.Get(), index, flags);
 }
 
 void Application::Renderer::Clear() const {

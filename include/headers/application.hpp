@@ -2,7 +2,6 @@
 #define APPLICATION_HPP
 
 #include <memory>
-#include <functional>
 #include <string_view>
 
 #include <SDL.h>
@@ -11,7 +10,18 @@
 
 
 class Application {
-    template <typename T, typename Allocator, typename Deleter>
+    template <typename T>
+    struct DefaultAllocator {
+        template <typename... Args>
+        T* operator()(Args&&...) const;
+    };
+
+    template <typename T>
+    struct DefaultDeallocator {
+        void operator()(T*) const;
+    };
+
+    template <typename T, typename Allocator = DefaultAllocator<T>, typename Deallocator = DefaultDeallocator<T>>
     class Dependency {
     public:
         inline Dependency() = default;
@@ -20,8 +30,8 @@ class Application {
         bool Empty() const noexcept;
         T* Get() const noexcept;
 
-        template <typename... Args>
-        void Initialize(Allocator allocator, Deleter deleter, Args&&... args);
+        template <Allocator allocator, Deallocator deallocator, typename... Args>
+        void Initialize(Args&&...);
 
     protected:
         std::shared_ptr<T> mPointer;
@@ -49,6 +59,27 @@ class Application {
         void FillRect() const;
     };
 
+    class Timer {
+    public:
+        enum class State {
+            kIdle,
+            kActive,
+            kSuspended,
+        };
+
+        void Start();
+        void Stop();
+        void Pause();
+        void Unpause();
+
+        std::uint64_t GetTicks() const noexcept;
+        State GetState() const noexcept;
+
+    protected:
+        State mState;
+        std::uint64_t mStartTicks, mPausedTicks;
+    };
+
     public:
         inline Application() = default;
         inline ~Application() = default;
@@ -59,7 +90,7 @@ class Application {
         void Initialize();
         void StartGameLoop() const;
 
-        void InitializeExternalDependencies();
+        void InitializeDependencies();
         void RegisterComponents() const;
         void RegisterSystems();
         void CreateEntities();
@@ -69,6 +100,7 @@ class Application {
 
         Window mWindow;
         Renderer mRenderer;
+        Timer mTimer;
 };
 
 

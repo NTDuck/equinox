@@ -5,7 +5,7 @@
 
 
 void Application::Window::Initialize(std::string_view const& title, Rect const& size, std::uint32_t flags) {
-    Application::Dependency<SDL_Window, decltype(SDL_CreateWindow), decltype(SDL_DestroyWindow)>::Initialize(SDL_CreateWindow, SDL_DestroyWindow, title.data(), size.x, size.y, size.w, size.h, flags);
+    Application::Dependency<SDL_Window, decltype(SDL_CreateWindow), decltype(SDL_DestroyWindow)>::Initialize<SDL_CreateWindow, SDL_DestroyWindow>(title.data(), size.x, size.y, size.w, size.h, flags);
     mID = SDL_GetWindowID(Get());
 }
 
