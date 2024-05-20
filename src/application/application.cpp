@@ -1,10 +1,16 @@
 #ifndef APPLICATION_CPP
 #define APPLICATION_CPP
 
-#include <application.hpp>
+#include <fstream>
+#include <iomanip>
 
+#include <application.hpp>
 #include <components.hpp>
 
+
+Application::~Application() {
+    SDL_Quit();
+}
 
 void Application::Start() {
     Initialize();
@@ -18,16 +24,19 @@ void Application::Initialize() {
     CreateEntities();
 }
 
+/**
+ * @warning Spaghetti code, sad to witness.
+*/
 void Application::StartGameLoop() {
-    std::uint64_t dt = 0;
-
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-    std::cout.tie(nullptr);
-
     mRenderer.SetDrawColor({ 0xf2, 0xf3, 0xf4, SDL_ALPHA_OPAQUE });
 
-    while (true) {
+    std::uint64_t dt = 0;
+    SDL_Event event;
+    bool flag = true;
+
+    while (flag) {
+        while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT) { flag = false; break; }
+
         mFPSRegulator.PreIntegrate();
 
         mRenderer.Clear();
@@ -36,14 +45,14 @@ void Application::StartGameLoop() {
 
         // Rudimentary logging to show that player actually moves
         auto playerTransform = global::ECSCoordinator.GetComponent<component::Transform>(mPlayerID);
-        if (playerTransform.position.x != config::kMapHigherBound.x) std::cout << "(" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
+        if (playerTransform.position.x != config::kMapHigherBound.x) std::cout << "Player position: (" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
+
+        std::cout << "FPS: " << mFPSMonitor.GetFPS(dt) << std::endl;
 
         mRenderer.FillRect();
         mRenderer.Integrate();
 
-        dt = mTimer.GetTicks() - dt;
-        
-        std::cout << mFPSCalculator.GetFPS() << std::endl;
+        dt = mTimer.GetDeltaTime();
         mFPSRegulator.PostIntegrate();
     }
 }
@@ -55,7 +64,7 @@ void Application::InitializeDependencies() {
     mWindow.Initialize(config::sdl::window::kTitle, config::sdl::window::kSize, config::sdl::window::kInitFlags);
     mRenderer.Initialize(mWindow, config::sdl::renderer::kDriverIndex, config::sdl::renderer::kInitFlags);
     mTimer.Start();
-    mFPSCalculator.Start();
+    mFPSMonitor.Start();
     mFPSRegulator.SetFPS(config::kFPS);
 }
 

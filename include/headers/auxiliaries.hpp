@@ -8,6 +8,20 @@
 #include <ecs/ecs.hpp>
 
 
+/* Enumerations */
+/**
+ * @see https://qualified.one/blog/game_dev/six-methods-of-fps-calculation/
+*/
+enum class FPSMonitoringMethod {
+    kFixedInterval,
+    kFixedInterval_,
+    kFixedFrameTime,
+    kRealTime,
+    kCommonAverage,
+    kExactSampling,
+    kAverageSampling,
+};
+
 /* Aliases */
 using Point = SDL_Point;
 using Rect = SDL_Rect;
@@ -72,6 +86,15 @@ namespace config {
             { SDL_HINT_RENDER_VSYNC, "1" },
             { SDL_HINT_WINDOWS_NO_CLOSE_ON_ALT_F4, "1" },
         }};
+    }
+
+    namespace fps {
+        static constexpr FPSMonitoringMethod kFPSMonitoringMethod = FPSMonitoringMethod::kRealTime;
+
+        static constexpr std::uint32_t kTicksPerInterval = 1000;
+        static constexpr std::uint32_t kFramesPerInterval = 16;
+        static constexpr std::size_t kMaxExactSamplingSamples = 128;
+        static constexpr std::size_t kMaxAverageSamplingSamples = 128;
     }
 }
 

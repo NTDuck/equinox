@@ -2,6 +2,7 @@
 #define APPLICATION_HPP
 
 #include <memory>
+#include <type_traits>
 #include <string_view>
 
 #include <SDL.h>
@@ -22,10 +23,10 @@ class Application {
     };
 
     template <typename T, typename Allocator = DefaultAllocator<T>, typename Deallocator = DefaultDeallocator<T>>
-    class Dependency {
+    class IDependency {
     public:
-        inline Dependency() = default;
-        virtual ~Dependency();
+        inline IDependency() = default;
+        virtual ~IDependency();
 
         bool Empty() const noexcept;
         T* Get() const noexcept;
@@ -37,7 +38,7 @@ class Application {
         std::shared_ptr<T> mPointer;
     };
 
-    class Window : public Dependency<SDL_Window, decltype(SDL_CreateWindow), decltype(SDL_DestroyWindow)> {
+    class Window : public IDependency<SDL_Window, decltype(SDL_CreateWindow), decltype(SDL_DestroyWindow)> {
     public:
         void Initialize(std::string_view const&, Rect const&, std::uint32_t);
 
@@ -47,7 +48,7 @@ class Application {
         std::uint32_t mID = -1;
     };
 
-    class Renderer : public Dependency<SDL_Renderer, decltype(SDL_CreateRenderer), decltype(SDL_DestroyRenderer)> {
+    class Renderer : public IDependency<SDL_Renderer, decltype(SDL_CreateRenderer), decltype(SDL_DestroyRenderer)> {
     public:
         void Initialize(Window const&, std::int32_t, std::uint32_t);
 
@@ -73,6 +74,7 @@ class Application {
         void Unpause();
 
         std::uint64_t GetTicks() const noexcept;
+        std::uint64_t GetDeltaTime() const noexcept;
         State GetState() const noexcept;
 
     protected:
@@ -92,18 +94,27 @@ class Application {
         std::uint32_t mTicksPerFrame;
     };
 
-    class FPSCalculator : Timer {
+    template <FPSMonitoringMethod Method>
+    class FPSMonitor : Timer {
     public:
         void Start();
-        double GetFPS() noexcept;
+
+        template <typename... Args>
+        decltype(auto) GetFPS(Args&&...) const;
 
     private:
-        std::uint64_t mFrames = 0;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, std::uint32_t> GetFPS() const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, std::uint32_t> GetFPS(std::uint32_t) const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, double> GetFPS() const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kRealTime, double> GetFPS(std::uint32_t) const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, double> GetFPS() const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, double> GetFPS(std::uint32_t) const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kAverageSampling, double> GetFPS(std::uint32_t) const;
     };
 
     public:
         inline Application() = default;
-        inline ~Application() = default;
+        ~Application();
 
         void Start();
 
@@ -123,11 +134,12 @@ class Application {
         Renderer mRenderer;
 
         Timer mTimer;
+        FPSMonitor<config::fps::kFPSMonitoringMethod> mFPSMonitor;
         FPSRegulator mFPSRegulator;
-        FPSCalculator mFPSCalculator;
 };
 
 
-#include <application.tpp>
+#include <application/idependency.tpp>
+#include <application/timers.tpp>
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef APPLICATION_TIMER_CPP
-#define APPLICATION_TIMER_CPP
+#ifndef APPLICATION_TIMERS_CPP
+#define APPLICATION_TIMERS_CPP
 
 #include <application.hpp>
 #include <SDL_timer.h>
@@ -47,6 +47,16 @@ std::uint64_t Application::Timer::GetTicks() const noexcept {
     }
 }
 
+std::uint64_t Application::Timer::GetDeltaTime() const noexcept {
+    static std::uint64_t ticksOfPreviousCall = 0;
+
+    auto ticksOfCurrentCall = GetTicks();
+    auto dt = ticksOfCurrentCall - ticksOfPreviousCall;
+    ticksOfPreviousCall = ticksOfCurrentCall;
+
+    return dt;
+}
+
 Application::Timer::State Application::Timer::GetState() const noexcept {
     return mState;
 }
@@ -71,15 +81,5 @@ void Application::FPSRegulator::PostIntegrate() const {
     if (ticksOfCurrentFrame < mTicksPerFrame) SDL_Delay(mTicksPerFrame - ticksOfCurrentFrame);
 }
 
-void Application::FPSCalculator::Start() {
-    Timer::Start();
-}
-
-/**
- * @note Called once per frame.
-*/
-double Application::FPSCalculator::GetFPS() noexcept {
-    return mFrames++ / (GetTicks() / 1000.f);
-}
 
 #endif
