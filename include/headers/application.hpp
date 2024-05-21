@@ -49,6 +49,10 @@ class Application {
     };
 
     class Renderer : public IDependency<SDL_Renderer, decltype(SDL_CreateRenderer), decltype(SDL_DestroyRenderer)> {
+        class SpriteSheet {
+
+        };
+
     public:
         void Initialize(Window const&, std::int32_t, std::uint32_t);
 
@@ -73,13 +77,13 @@ class Application {
         void Pause();
         void Unpause();
 
-        std::uint64_t GetTicks() const noexcept;
-        std::uint64_t GetDeltaTime() const noexcept;
+        Ticks GetTicks() const noexcept;
+        Ticks GetDeltaTime() const noexcept;
         State GetState() const noexcept;
 
     protected:
         State mState;
-        std::uint64_t mStartTicks, mPausedTicks;
+        Ticks mStartTicks, mPausedTicks;
     };
 
     class FPSRegulator : Timer {
@@ -91,7 +95,7 @@ class Application {
         void PostIntegrate() const;
 
     private:
-        std::uint32_t mTicksPerFrame;
+        Ticks mTicksPerFrame;
     };
 
     template <FPSMonitoringMethod Method>
@@ -103,13 +107,15 @@ class Application {
         decltype(auto) GetFPS(Args&&...) const;
 
     private:
-        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, std::uint32_t> GetFPS() const;
-        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, std::uint32_t> GetFPS(std::uint32_t) const;
-        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, double> GetFPS() const;
-        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kRealTime, double> GetFPS(std::uint32_t) const;
-        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, double> GetFPS() const;
-        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, double> GetFPS(std::uint32_t) const;
-        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kAverageSampling, double> GetFPS(std::uint32_t) const;
+        static constexpr inline FTicks TicksPerSecond() noexcept { return 1000; }
+
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, Ticks> GetFPS() const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, Ticks> GetFPS(Ticks dt) const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, FTicks> GetFPS() const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kRealTime, FTicks> GetFPS(Ticks dt) const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, FTicks> GetFPS() const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, FTicks> GetFPS(Ticks dt) const;
+        template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kAverageSampling, FTicks> GetFPS(Ticks dt) const;
     };
 
     public:

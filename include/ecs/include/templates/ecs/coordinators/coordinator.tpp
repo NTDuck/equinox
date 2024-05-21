@@ -10,8 +10,8 @@ void ecs::Coordinator::RegisterComponent() const {
 }
 
 template <typename... Components>
-void ecs::Coordinator::RegisterComponent() const {
-    (mComponentManager->RegisterComponent<Components>(), ...);
+void ecs::Coordinator::RegisterComponents() const {
+    (RegisterComponent<Components>(), ...);
 }
 
 template <typename Component>

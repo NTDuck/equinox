@@ -4,6 +4,9 @@
 #include <auxiliaries.hpp>
 
 
+/**
+ * @see https://medium.com/@savas/nomad-game-engine-part-2-ecs-9132829188e5
+*/
 namespace component {
     struct Transform {
         Point position;
@@ -13,6 +16,16 @@ namespace component {
         Point velocity;
         Point acceleration;
     };
+
+    struct Sprite {
+        SpriteSheetID spriteSheetID;
+        SpriteID spriteID;
+    };
+
+    struct Collision;
+    struct Health;
+    struct Follow;
+    struct Joystick;
 }
 
 

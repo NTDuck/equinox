@@ -2,6 +2,7 @@
 #define AUXILIARIES_HPP
 
 #include <cassert>
+#include <array>
 #include <iostream>
 
 #include <SDL.h>
@@ -26,6 +27,12 @@ enum class FPSMonitoringMethod {
 using Point = SDL_Point;
 using Rect = SDL_Rect;
 using Color = SDL_Color;
+
+using Ticks = std::uint64_t;
+using FTicks = double;
+
+using SpriteSheetID = std::uint32_t;
+using SpriteID = std::uint16_t;
 
 /* Operator Overloading */
 constexpr inline Point operator-(Point const& obj) { return Point({ -obj.x, -obj.y }); }
@@ -63,8 +70,11 @@ constexpr inline bool operator>=(Point const& lhs, Point const& rhs) noexcept { 
 namespace config {
     static constexpr Point kMapLowerBound = { 0, 0 };
     static constexpr Point kMapHigherBound = { 128, 128 };
+    static constexpr std::uint16_t kMaxTextureID = 4;
 
     static constexpr double kFPS = 60;
+
+    static constexpr SpriteSheetID kMaxSpriteSheetID = 4;
 
     namespace sdl {
         static constexpr std::uint32_t kInitFlags = SDL_INIT_EVENTS | SDL_INIT_TIMER;
@@ -91,10 +101,10 @@ namespace config {
     namespace fps {
         static constexpr FPSMonitoringMethod kFPSMonitoringMethod = FPSMonitoringMethod::kRealTime;
 
-        static constexpr std::uint32_t kTicksPerInterval = 1000;
-        static constexpr std::uint32_t kFramesPerInterval = 16;
-        static constexpr std::size_t kMaxExactSamplingSamples = 128;
-        static constexpr std::size_t kMaxAverageSamplingSamples = 128;
+        static constexpr Ticks kTicksPerInterval = 1000;
+        static constexpr Ticks kFramesPerInterval = 16;
+        static constexpr Ticks kMaxExactSamplingSamples = 128;
+        static constexpr Ticks kMaxAverageSamplingSamples = 128;
     }
 }
 

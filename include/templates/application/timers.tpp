@@ -21,21 +21,21 @@ decltype(auto) Application::FPSMonitor<Method>::GetFPS(Args&&... args) const {
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, std::uint32_t> Application::FPSMonitor<Method>::GetFPS() const {
-    static std::uint32_t frameCount = 0;
-    static auto FPS = frameCount;
+std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, Ticks> Application::FPSMonitor<Method>::GetFPS() const {
+    static std::size_t frameCount = 0;
+    static Ticks frameRate = frameCount;
     static auto ticksOfPreviousFrame = GetTicks();
 
     ++frameCount;
     auto ticksOfCurrentFrame = GetTicks();
 
     if (ticksOfCurrentFrame - ticksOfPreviousFrame > config::fps::kTicksPerInterval) {
-        FPS = frameCount;
+        frameRate = frameCount;
         frameCount = 0;
         ticksOfPreviousFrame = ticksOfCurrentFrame;
     }
 
-    return FPS;
+    return frameRate;
 }
 
 /**
@@ -43,21 +43,21 @@ std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, std::uint32_t> Applic
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, std::uint32_t> Application::FPSMonitor<Method>::GetFPS(std::uint32_t dt) const {
-    static std::uint32_t frameCount = 0;
-    static auto FPS = frameCount;
-    static std::int32_t ticksToNextInterval = config::fps::kTicksPerInterval;
+std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, Ticks> Application::FPSMonitor<Method>::GetFPS(Ticks dt) const {
+    static std::size_t frameCount = 0;
+    static Ticks frameRate = frameCount;
+    static auto ticksToNextInterval = config::fps::kTicksPerInterval;
 
     ++frameCount;
     ticksToNextInterval -= dt;
 
     if (ticksToNextInterval < 0) {
-        FPS = frameCount;
+        frameRate = frameCount;
         frameCount = 0;
         ticksToNextInterval = config::fps::kTicksPerInterval;
     }
 
-    return FPS;
+    return frameRate;
 }
 
 /**
@@ -65,21 +65,21 @@ std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, std::uint32_t> Appli
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, double> Application::FPSMonitor<Method>::GetFPS() const {
-    static std::uint32_t frameCount = 0;
-    static double FPS = 0;
+std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, FTicks> Application::FPSMonitor<Method>::GetFPS() const {
+    static std::size_t frameCount = 0;
+    static FTicks frameRate = 0;
     static auto ticksOfPreviousInterval = GetTicks();
 
     ++frameCount;
 
     if (frameCount > config::fps::kFramesPerInterval) {
         auto ticksOfCurrentInterval = GetTicks();
-        FPS = static_cast<double>(1000) * frameCount / (ticksOfCurrentInterval - ticksOfPreviousInterval);
+        frameRate = TicksPerSecond() * frameCount / (ticksOfCurrentInterval - ticksOfPreviousInterval);
         frameCount = 0;
         ticksOfPreviousInterval = ticksOfCurrentInterval;
     }
 
-    return FPS;
+    return frameRate;
 }
 
 /**
@@ -87,8 +87,8 @@ std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, double> Application:
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kRealTime, double> Application::FPSMonitor<Method>::GetFPS(std::uint32_t dt) const {
-    return static_cast<double>(1000) / dt;
+std::enable_if_t<M == FPSMonitoringMethod::kRealTime, FTicks> Application::FPSMonitor<Method>::GetFPS(Ticks dt) const {
+    return TicksPerSecond() / dt;
 }
 
 /**
@@ -96,13 +96,13 @@ std::enable_if_t<M == FPSMonitoringMethod::kRealTime, double> Application::FPSMo
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, double> Application::FPSMonitor<Method>::GetFPS() const {
+std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, FTicks> Application::FPSMonitor<Method>::GetFPS() const {
     static const auto ticksOfFirstFrame = GetTicks();
-    static std::uint32_t frameCount = 0;
+    static std::size_t frameCount = 0;
 
     ++frameCount;
     auto dt = GetTicks() - ticksOfFirstFrame;
-    return static_cast<double>(1000) * frameCount / dt;
+    return TicksPerSecond() * frameCount / dt;
 }
 
 /**
@@ -110,9 +110,9 @@ std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, double> Application::
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, double> Application::FPSMonitor<Method>::GetFPS(std::uint32_t dt) const {
-    static std::queue<std::uint32_t> sampledTicks;
-    static std::uint32_t sumOfSampledTicks = 0;
+std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, FTicks> Application::FPSMonitor<Method>::GetFPS(Ticks dt) const {
+    static std::queue<Ticks> sampledTicks;
+    static Ticks sumOfSampledTicks = 0;
 
     if (sampledTicks.size() > config::fps::kMaxExactSamplingSamples) {
         sumOfSampledTicks -= sampledTicks.front();
@@ -122,7 +122,7 @@ std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, double> Application::
     sumOfSampledTicks += dt;
     sampledTicks.push(dt);
 
-    return static_cast<double>(1000) * sampledTicks.size() / sumOfSampledTicks;
+    return TicksPerSecond() * sampledTicks.size() / sumOfSampledTicks;
 }
 
 /**
@@ -130,12 +130,12 @@ std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, double> Application::
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kAverageSampling, double> Application::FPSMonitor<Method>::GetFPS(std::uint32_t dt) const {
-    static double averageTicks = dt;
+std::enable_if_t<M == FPSMonitoringMethod::kAverageSampling, FTicks> Application::FPSMonitor<Method>::GetFPS(Ticks dt) const {
+    static FTicks averageTicks = dt;
     static constexpr double contributionOfCurrentTicks = static_cast<double>(1) / config::fps::kMaxAverageSamplingSamples;
 
     averageTicks = averageTicks * (1 - contributionOfCurrentTicks) + dt * contributionOfCurrentTicks;
-    return static_cast<double>(1000) / averageTicks;  
+    return TicksPerSecond() / averageTicks;  
 }
 
 

@@ -48,7 +48,7 @@ std::uint64_t Application::Timer::GetTicks() const noexcept {
 }
 
 std::uint64_t Application::Timer::GetDeltaTime() const noexcept {
-    static std::uint64_t ticksOfPreviousCall = 0;
+    static Ticks ticksOfPreviousCall = 0;
 
     auto ticksOfCurrentCall = GetTicks();
     auto dt = ticksOfCurrentCall - ticksOfPreviousCall;

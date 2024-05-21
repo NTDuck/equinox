@@ -71,7 +71,7 @@ void Application::InitializeDependencies() {
 }
 
 void Application::RegisterComponents() const {
-    mCoordinator->RegisterComponent<component::Transform, component::Motion>();
+    mCoordinator->RegisterComponents<component::Transform, component::Motion>();
 }
 
 void Application::RegisterSystems() {

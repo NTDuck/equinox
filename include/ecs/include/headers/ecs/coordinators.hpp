@@ -23,7 +23,7 @@ namespace ecs {
         void RegisterComponent() const;
 
         template <typename... Components>
-        void RegisterComponent() const;
+        void RegisterComponents() const;
 
         template <typename Component>
         void InsertComponent(EntityID, Component const&) const;
