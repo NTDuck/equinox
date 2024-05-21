@@ -8,6 +8,8 @@
 #include <components.hpp>
 
 
+Application::Application() : mCoordinator(std::make_shared<ecs::Coordinator>()) {}
+
 Application::~Application() {
     SDL_Quit();
 }
@@ -44,9 +46,8 @@ void Application::StartGameLoop() {
         mMovementSystem->Integrate(dt);
 
         // Rudimentary logging to show that player actually moves
-        auto playerTransform = global::ECSCoordinator.GetComponent<component::Transform>(mPlayerID);
+        auto playerTransform = mCoordinator->GetComponent<component::Transform>(mPlayerID);
         if (playerTransform.position.x != config::kMapHigherBound.x) std::cout << "Player position: (" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
-
         std::cout << "FPS: " << mFPSMonitor.GetFPS(dt) << std::endl;
 
         mRenderer.FillRect();
@@ -63,40 +64,29 @@ void Application::InitializeDependencies() {
 
     mWindow.Initialize(config::sdl::window::kTitle, config::sdl::window::kSize, config::sdl::window::kInitFlags);
     mRenderer.Initialize(mWindow, config::sdl::renderer::kDriverIndex, config::sdl::renderer::kInitFlags);
+
     mTimer.Start();
     mFPSMonitor.Start();
     mFPSRegulator.SetFPS(config::kFPS);
 }
 
 void Application::RegisterComponents() const {
-    global::ECSCoordinator.RegisterComponent<component::Transform>();
-    global::ECSCoordinator.RegisterComponent<component::Motion>();
+    mCoordinator->RegisterComponent<component::Transform, component::Motion>();
 }
 
 void Application::RegisterSystems() {
-    mMovementSystem = global::ECSCoordinator.RegisterSystem<MovementSystem>();
-    ECS::Signature movementSystemSignature;
-
-    movementSystemSignature.set(global::ECSCoordinator.GetComponentID<component::Transform>());
-    movementSystemSignature.set(global::ECSCoordinator.GetComponentID<component::Motion>());
-
-    global::ECSCoordinator.SetSystemSignature<MovementSystem>(movementSystemSignature);
+    mMovementSystem = mCoordinator->RegisterSystem<MovementSystem>(mCoordinator);
+    mCoordinator->SetSystemSignature<MovementSystem, component::Transform, component::Motion>();
 }
 
 void Application::CreateEntities() {
-    mPlayerID = global::ECSCoordinator.CreateEntity();
-
-    component::Transform playerTransform;
-    playerTransform.position.x = (config::kMapHigherBound.x - config::kMapLowerBound.x) / 2;
-    playerTransform.position.y = (config::kMapHigherBound.y - config::kMapLowerBound.y) / 2;
-    global::ECSCoordinator.InsertComponent(mPlayerID, playerTransform);
-
-    component::Motion playerMotion;
-    playerMotion.velocity.x = 1;
-    playerMotion.velocity.y = 1;
-    playerMotion.acceleration.x = 0;
-    playerMotion.acceleration.y = 0;
-    global::ECSCoordinator.InsertComponent(mPlayerID, playerMotion);
+    mPlayerID = mCoordinator->CreateEntity();
+    mCoordinator->InsertComponent<component::Transform>(mPlayerID, {
+        { (config::kMapHigherBound.x - config::kMapLowerBound.x) / 2, (config::kMapHigherBound.y - config::kMapLowerBound.y) / 2 },
+    });
+    mCoordinator->InsertComponent<component::Motion>(mPlayerID, {
+        { 1, 1 }, { 0, 0 },
+    });
 }
 
 

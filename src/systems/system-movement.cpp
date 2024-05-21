@@ -7,10 +7,12 @@
 #include <systems.hpp>
 
 
+MovementSystem::MovementSystem(std::shared_ptr<ecs::Coordinator> coordinator) : ecs::ISystem(coordinator) {}
+
 void MovementSystem::Integrate(std::uint32_t dt) {
     for (auto const& entityID : mEntityIDs) {
-        auto& transform = global::ECSCoordinator.GetComponent<component::Transform>(entityID);
-        auto& motion = global::ECSCoordinator.GetComponent<component::Motion>(entityID);
+        auto& transform = mCoordinator->GetComponent<component::Transform>(entityID);
+        auto& motion = mCoordinator->GetComponent<component::Motion>(entityID);
 
         transform.position.x += motion.velocity.x * dt;
         transform.position.y += motion.velocity.y * dt;

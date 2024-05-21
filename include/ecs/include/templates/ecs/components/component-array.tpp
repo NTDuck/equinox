@@ -6,7 +6,7 @@
 
 
 template <typename Component>
-void ECS::ComponentArray<Component>::InsertComponent(EntityID entityID, Component const& component) {
+void ecs::ComponentArray<Component>::InsertComponent(EntityID entityID, Component const& component) {
     assert(mEntityToIndexMap.find(entityID) == mEntityToIndexMap.end() && "Component added to entity more than once");
 
     // Place new entry at the end
@@ -20,7 +20,7 @@ void ECS::ComponentArray<Component>::InsertComponent(EntityID entityID, Componen
 }
 
 template <typename Component>
-void ECS::ComponentArray<Component>::EraseComponent(EntityID entityID) {
+void ecs::ComponentArray<Component>::EraseComponent(EntityID entityID) {
     assert(mEntityToIndexMap.find(entityID) != mEntityToIndexMap.end() && "Removing non-existent component");
 
     // Copy element at the end into deleted element's place to maintain density
@@ -40,13 +40,13 @@ void ECS::ComponentArray<Component>::EraseComponent(EntityID entityID) {
 }
 
 template <typename Component>
-Component& ECS::ComponentArray<Component>::GetComponent(EntityID entityID) {
+Component& ecs::ComponentArray<Component>::GetComponent(EntityID entityID) {
     assert(mEntityToIndexMap.find(entityID) != mEntityToIndexMap.end() && "Retrieving non-existent component.");
     return mComponentArray[mEntityToIndexMap[entityID]];
 }
 
 template <typename Component>
-void ECS::ComponentArray<Component>::EraseEntityCallback(EntityID entityID) {
+void ecs::ComponentArray<Component>::EraseEntityCallback(EntityID entityID) {
     if (mEntityToIndexMap.find(entityID) != mEntityToIndexMap.end()) EraseComponent(entityID);
 }
 

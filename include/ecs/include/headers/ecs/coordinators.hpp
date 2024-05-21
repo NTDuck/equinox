@@ -9,7 +9,7 @@
 #include <ecs/auxiliaries.hpp>
 
 
-namespace ECS {
+namespace ecs {
     class Coordinator {
     public:
         Coordinator();
@@ -20,6 +20,9 @@ namespace ECS {
 
         /* Components methods */
         template <typename Component>
+        void RegisterComponent() const;
+
+        template <typename... Components>
         void RegisterComponent() const;
 
         template <typename Component>
@@ -35,11 +38,14 @@ namespace ECS {
         ComponentID GetComponentID() const;
 
         /* System methods */
-        template <typename System>
-        std::shared_ptr<System> RegisterSystem() const;
+        template <typename System, typename... Args>
+        std::shared_ptr<System> RegisterSystem(Args&&...) const;
 
         template <typename System>
         void SetSystemSignature(Signature const&) const;
+
+        template <typename System, typename... Components>
+        void SetSystemSignature() const;
 
     private:
         std::unique_ptr<EntityManager> mEntityManager;

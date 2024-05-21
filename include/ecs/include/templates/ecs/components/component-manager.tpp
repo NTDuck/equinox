@@ -6,7 +6,7 @@
 
 
 template <typename Component>
-void ECS::ComponentManager::RegisterComponent() {
+void ecs::ComponentManager::RegisterComponent() {
 	assert(std::is_pod<Component>::value && "Component is not of POD type");
 
     std::string_view componentTypeName = typeid(Component).name();
@@ -21,29 +21,29 @@ void ECS::ComponentManager::RegisterComponent() {
 }
 
 template <typename Component>
-ECS::ComponentID ECS::ComponentManager::GetComponentID() const {
+ecs::ComponentID ecs::ComponentManager::GetComponentID() const {
     std::string_view componentTypeName = typeid(Component).name();
 	assert(mComponentIDs.find(componentTypeName) != mComponentIDs.end() && "Component not registered before use.");
 	return mComponentIDs.at(componentTypeName);   // `operator[]` performs insertion with default-constructed value when key does not exist, therefore is not allowed in a `const` method
 }
 
 template <typename Component>
-void ECS::ComponentManager::InsertComponent(EntityID entityID, Component const& component) {
+void ecs::ComponentManager::InsertComponent(EntityID entityID, Component const& component) {
 	GetComponentArray<Component>()->InsertComponent(entityID, component);
 }
 
 template <typename Component>
-void ECS::ComponentManager::EraseComponent(EntityID entityID) {
+void ecs::ComponentManager::EraseComponent(EntityID entityID) {
 	GetComponentArray<Component>()->EraseComponent(entityID);
 }
 
 template <typename Component>
-Component& ECS::ComponentManager::GetComponent(EntityID entityID) {
+Component& ecs::ComponentManager::GetComponent(EntityID entityID) {
 	return GetComponentArray<Component>()->GetComponent(entityID);
 }
 
 template <typename Component>
-std::shared_ptr<ECS::ComponentArray<Component>> ECS::ComponentManager::GetComponentArray() {
+std::shared_ptr<ecs::ComponentArray<Component>> ecs::ComponentManager::GetComponentArray() {
     std::string_view componentTypeName = typeid(Component).name();
 	assert(mComponentIDs.find(componentTypeName) != mComponentIDs.end() && "Component not registered before use.");
 	return std::static_pointer_cast<ComponentArray<Component>>(mComponentArrays[componentTypeName]);

@@ -7,7 +7,7 @@
 #include <ecs/auxiliaries.hpp>
 
 
-namespace ECS {
+namespace ecs {
     class EntityManager {
     public:
         EntityManager();

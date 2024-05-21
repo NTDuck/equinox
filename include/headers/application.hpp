@@ -113,7 +113,7 @@ class Application {
     };
 
     public:
-        inline Application() = default;
+        Application();
         ~Application();
 
         void Start();
@@ -127,8 +127,9 @@ class Application {
         void RegisterSystems();
         void CreateEntities();
 
-        ECS::EntityID mPlayerID;
+        ecs::EntityID mPlayerID;
         std::shared_ptr<MovementSystem> mMovementSystem;
+        std::shared_ptr<ecs::Coordinator> mCoordinator;
 
         Window mWindow;
         Renderer mRenderer;

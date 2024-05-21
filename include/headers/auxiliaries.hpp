@@ -123,10 +123,6 @@ namespace utility {
     };
 }
 
-namespace global {
-    extern ECS::Coordinator ECSCoordinator;
-}
-
 namespace logger {
     enum class Level {
         kEmergency,

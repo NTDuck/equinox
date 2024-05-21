@@ -9,18 +9,24 @@
 #include <ecs/auxiliaries.hpp>
 
 
-namespace ECS {
+namespace ecs {
+    class Coordinator;
+
     class ISystem {
     public:
+        explicit ISystem(std::shared_ptr<Coordinator>);
         virtual void Integrate(std::uint32_t dt) = 0;
 
         std::set<EntityID> mEntityIDs;
+
+    protected:
+        std::shared_ptr<Coordinator> mCoordinator;
     };
 
     class SystemManager {
     public:
-        template <typename System>
-        std::shared_ptr<System> RegisterSystem();
+        template <typename System, typename... Args>
+        std::shared_ptr<System> RegisterSystem(Args&&...);
 
         template <typename System>
         void SetSignature(Signature const&);

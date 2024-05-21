@@ -8,7 +8,7 @@
 #include <ecs/auxiliaries.hpp>
 
 
-namespace ECS {
+namespace ecs {
     class IComponentArray {
     public: 
         inline virtual ~IComponentArray() = default;

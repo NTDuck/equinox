@@ -4,17 +4,17 @@
 #include <ecs/coordinators.hpp>
 
 
-ECS::Coordinator::Coordinator() {
+ecs::Coordinator::Coordinator() {
     mEntityManager = std::make_unique<EntityManager>();
     mComponentManager = std::make_unique<ComponentManager>();
     mSystemManager = std::make_unique<SystemManager>();
 }
 
-ECS::EntityID ECS::Coordinator::CreateEntity() const {
+ecs::EntityID ecs::Coordinator::CreateEntity() const {
     return mEntityManager->CreateEntity();
 }
 
-void ECS::Coordinator::EraseEntity(EntityID entityID) const {
+void ecs::Coordinator::EraseEntity(EntityID entityID) const {
     mEntityManager->EraseEntity(entityID);
     mComponentManager->EraseEntityCallback(entityID);
     mSystemManager->EraseEntityCallback(entityID);

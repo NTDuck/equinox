@@ -2,21 +2,22 @@
 #define ECS_SYSTEM_MANAGER_TPP
 
 #include <cassert>
+#include <functional>
 #include <ecs/systems.hpp>
 
 
-template <typename System>
-std::shared_ptr<System> ECS::SystemManager::RegisterSystem() {
+template <typename System, typename... Args>
+std::shared_ptr<System> ecs::SystemManager::RegisterSystem(Args&&... args) {
     std::string_view systemTypeName = typeid(System).name();
     assert(mSystems.find(systemTypeName) == mSystems.end() && "Registering system more than once");
 
-    auto system = std::make_shared<System>();
+    auto system = std::make_shared<System>(std::forward<Args>(args)...);
     mSystems.insert({ systemTypeName, system });
     return system;
 }
 
 template <typename System>
-void ECS::SystemManager::SetSignature(Signature const& signature) {
+void ecs::SystemManager::SetSignature(Signature const& signature) {
     std::string_view systemTypeName = typeid(System).name();
     assert(mSystems.find(systemTypeName) != mSystems.end() && "System used before registered");
 

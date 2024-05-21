@@ -4,14 +4,14 @@
 #include <ecs/systems.hpp>
 
 
-void ECS::SystemManager::EraseEntityCallback(EntityID entityID) const {
+void ecs::SystemManager::EraseEntityCallback(EntityID entityID) const {
     for (auto const& pair : mSystems) {
         auto const& system = pair.second;
         system->mEntityIDs.erase(entityID);
     }
 }
 
-void ECS::SystemManager::UpdateSignatureCallback(EntityID entityID, Signature const& entitySignature) const {
+void ecs::SystemManager::UpdateSignatureCallback(EntityID entityID, Signature const& entitySignature) const {
     for (auto& pair : mSystems) {
         auto const& systemTypeName = pair.first;
         auto const& system = pair.second;

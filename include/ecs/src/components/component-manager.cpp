@@ -4,7 +4,7 @@
 #include <ecs/components.hpp>
 
 
-void ECS::ComponentManager::EraseEntityCallback(EntityID entityID) {
+void ecs::ComponentManager::EraseEntityCallback(EntityID entityID) {
 	for (auto const& pair : mComponentArrays) {
 		auto const& componentArray = pair.second;
 		componentArray->EraseEntityCallback(entityID);

@@ -5,12 +5,17 @@
 
 
 template <typename Component>
-void ECS::Coordinator::RegisterComponent() const {
+void ecs::Coordinator::RegisterComponent() const {
     mComponentManager->RegisterComponent<Component>();
 }
 
+template <typename... Components>
+void ecs::Coordinator::RegisterComponent() const {
+    (mComponentManager->RegisterComponent<Components>(), ...);
+}
+
 template <typename Component>
-void ECS::Coordinator::InsertComponent(EntityID entityID, Component const& component) const {
+void ecs::Coordinator::InsertComponent(EntityID entityID, Component const& component) const {
     mComponentManager->InsertComponent<Component>(entityID, component);
 
     auto signature = mEntityManager->GetSignature(entityID);
@@ -21,7 +26,7 @@ void ECS::Coordinator::InsertComponent(EntityID entityID, Component const& compo
 }
 
 template <typename Component>
-void ECS::Coordinator::EraseComponent(EntityID entityID) const {
+void ecs::Coordinator::EraseComponent(EntityID entityID) const {
     mComponentManager->EraseComponent<Component>(entityID);
 
     auto signature = mEntityManager->GetSignature(entityID);
@@ -32,23 +37,30 @@ void ECS::Coordinator::EraseComponent(EntityID entityID) const {
 }
 
 template <typename Component>
-Component& ECS::Coordinator::GetComponent(EntityID entityID) const {
+Component& ecs::Coordinator::GetComponent(EntityID entityID) const {
     return mComponentManager->GetComponent<Component>(entityID);
 }
 
 template <typename Component>
-ECS::ComponentID ECS::Coordinator::GetComponentID() const {
+ecs::ComponentID ecs::Coordinator::GetComponentID() const {
     return mComponentManager->GetComponentID<Component>();
 }
 
-template <typename System>
-std::shared_ptr<System> ECS::Coordinator::RegisterSystem() const {
-    return mSystemManager->RegisterSystem<System>();
+template <typename System, typename... Args>
+std::shared_ptr<System> ecs::Coordinator::RegisterSystem(Args&&... args) const {
+    return mSystemManager->RegisterSystem<System>(std::forward<Args>(args)...);
 }
 
 template <typename System>
-void ECS::Coordinator::SetSystemSignature(Signature const& signature) const {
+void ecs::Coordinator::SetSystemSignature(Signature const& signature) const {
     mSystemManager->SetSignature<System>(signature);
+}
+
+template <typename System, typename... Components>
+void ecs::Coordinator::SetSystemSignature() const {
+    ecs::Signature signature;
+    (signature.set(GetComponentID<Components>()), ...);
+    SetSystemSignature<System>(signature);
 }
 
 
