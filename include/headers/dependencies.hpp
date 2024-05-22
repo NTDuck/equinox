@@ -36,6 +36,8 @@ public:
 
 class SpriteSheet : public utility::Pointer<SDL_Texture, IMG_LoadTexture, SDL_DestroyTexture> {
 public:
+    inline SpriteSheet() = default;
+
     void Initialize(Renderer const&, std::string_view, Point const&);
     Rect GetSrcRect(SpriteID) const noexcept;
 

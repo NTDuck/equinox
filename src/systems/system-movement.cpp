@@ -17,8 +17,8 @@ void MovementSystem::Integrate(std::uint32_t dt) {
         transform.position.x += motion.velocity.x * dt;
         transform.position.y += motion.velocity.y * dt;
 
-        transform.position.x = std::clamp(transform.position.x, config::kMapLowerBound.x, config::kMapHigherBound.x);
-        transform.position.y = std::clamp(transform.position.y, config::kMapLowerBound.y, config::kMapHigherBound.y);
+        transform.position.x = std::clamp(transform.position.x, 0, config::sdl::window::kSize.w / 4 * 3);
+        transform.position.y = std::clamp(transform.position.y, 0, config::sdl::window::kSize.h / 4 * 3);
 
         motion.velocity.x += motion.acceleration.x * dt;
         motion.velocity.y += motion.acceleration.y * dt;

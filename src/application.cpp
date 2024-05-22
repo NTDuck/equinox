@@ -5,11 +5,13 @@
 
 #include <application.hpp>
 #include <components.hpp>
+#include <utilities.hpp>
 
 
 Application::Application() : mCoordinator(std::make_shared<ecs::Coordinator>()) {}
 
 Application::~Application() {
+    IMG_Quit();
     SDL_Quit();
 }
 
@@ -36,20 +38,21 @@ void Application::StartGameLoop() {
     bool flag = true;
 
     while (flag) {
-        while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT) { flag = false; break; }
-
         mFPSRegulator.PreIntegrate();
+
+        while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT) { flag = false; break; }
 
         mRenderer.Clear();
 
         mMovementSystem->Integrate(dt);
+        mRenderSystem->Integrate(dt);
 
-        // Rudimentary logging to show that player actually moves
-        auto playerTransform = mCoordinator->GetComponent<components::Transform>(mPlayerID);
-        if (playerTransform.position.x != config::kMapHigherBound.x) std::cout << "Player position: (" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
-        std::cout << "FPS: " << mFPSMonitor.GetFPS(dt) << std::endl;
+        // // Rudimentary logging to show that player actually moves
+        // auto playerTransform = mCoordinator->GetComponent<components::Transform>(mPlayerID);
+        // if (playerTransform.position.x != config::kMapHigherBound.x) std::cout << "Player position: " << playerTransform.position << std::endl;
 
-        mRenderer.FillRect();
+        // std::cout << "FPS: " << mFPSMonitor.GetFPS(dt) << std::endl;
+
         mRenderer.RenderPresent();
 
         dt = mTimer.GetDeltaTime();
@@ -59,6 +62,8 @@ void Application::StartGameLoop() {
 
 void Application::InitializeDependencies() {
     SDL_Init(config::sdl::kInitFlags);
+    IMG_Init(config::sdl::kInitFlagsImage);
+
     for (auto const& pair : config::sdl::kHints) SDL_SetHint(pair.first.data(), pair.second.data());
 
     mWindow.Initialize(config::sdl::window::kTitle, config::sdl::window::kSize, config::sdl::window::kInitFlags);
@@ -70,21 +75,31 @@ void Application::InitializeDependencies() {
 }
 
 void Application::RegisterComponents() const {
-    mCoordinator->RegisterComponents<components::Transform, components::Motion>();
+    mCoordinator->RegisterComponents<components::Transform, components::Motion, components::Sprite>();
 }
 
 void Application::RegisterSystems() {
     mMovementSystem = mCoordinator->RegisterSystem<MovementSystem>(mCoordinator);
     mCoordinator->SetSystemSignature<MovementSystem, components::Transform, components::Motion>();
+
+    mRenderSystem = mCoordinator->RegisterSystem<RenderSystem>(mCoordinator, mRenderer);
+    mCoordinator->SetSystemSignature<RenderSystem, components::Transform, components::Sprite>();
+
+    mRenderSystem->Initialize(config::kSpriteSheetData);
 }
 
 void Application::CreateEntities() {
     mPlayerID = mCoordinator->CreateEntity();
+
     mCoordinator->InsertComponent<components::Transform>(mPlayerID, {
-        { (config::kMapHigherBound.x - config::kMapLowerBound.x) / 2, (config::kMapHigherBound.y - config::kMapLowerBound.y) / 2 },
+        config::sdl::window::kSize.w >> 1,
+        config::sdl::window::kSize.h >> 1,
     });
     mCoordinator->InsertComponent<components::Motion>(mPlayerID, {
         { 1, 1 }, { 0, 0 },
+    });
+    mCoordinator->InsertComponent<components::Sprite>(mPlayerID, {
+        0, 20,
     });
 }
 

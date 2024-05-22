@@ -16,6 +16,8 @@ utility::Pointer<T, Allocator, Deleter, Container>::Pointer(Args&&... args) {
 template <typename T, decltype(auto) Allocator, decltype(auto) Deleter, typename Container>
 template <typename... Args>
 utility::Pointer<T, Allocator, Deleter, Container>& utility::Pointer<T, Allocator, Deleter, Container>::Emplace(Args&&... args) {
+    Reset();
+
     T* rawPointer = std::invoke(CallableWrapper<Allocator>{}, std::forward<Args>(args)...);
     assert(rawPointer && "Failed to construct dependency");
     mContainer = Container(rawPointer, CallableWrapper<Deleter>{});

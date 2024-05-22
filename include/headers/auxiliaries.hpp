@@ -8,6 +8,7 @@
 #include <string_view>
 
 #include <SDL.h>
+#include <SDL_image.h>
 #include <ecs/ecs.hpp>
 
 
@@ -85,16 +86,18 @@ constexpr inline bool operator>=(Point const& lhs, std::int32_t rhs) noexcept { 
 /* Configurations */
 
 namespace config {
-    static constexpr Point kMapLowerBound = { 0, 0 };
-    static constexpr Point kMapHigherBound = { 128, 128 };
     static constexpr std::uint16_t kMaxTextureID = 4;
-    static constexpr SpriteSheetID kMaxSpriteSheetID = 4;
+    static constexpr SpriteSheetID kMaxSpriteSheetID = 1;
 
     static constexpr double kFPS = 60;
 
+    static constexpr std::array<std::pair<std::string_view, Point>, kMaxSpriteSheetID> kSpriteSheetData {
+        {{ "assets/graphics/characters/hana-caraka.png", { 40, 40 }, }},
+    };
+
     namespace sdl {
         static constexpr std::uint32_t kInitFlags = SDL_INIT_EVENTS | SDL_INIT_TIMER;
-        // static constexpr std::uint32_t kInitFlagsImage = IMG_INIT_PNG;
+        static constexpr std::uint32_t kInitFlagsImage = IMG_INIT_PNG;
 
         namespace window {
             static constexpr std::uint32_t kInitFlags = SDL_WINDOW_SHOWN;

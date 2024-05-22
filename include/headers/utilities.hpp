@@ -1,6 +1,7 @@
 #ifndef UTILITIES_HPP
 #define UTILITIES_HPP
 
+#include <iosfwd>   // https://stackoverflow.com/questions/373142/what-techniques-can-be-used-to-speed-up-c-compilation-times
 #include <memory>
 #include <string_view>
 
@@ -91,7 +92,12 @@ namespace utility {
     private:
         Container mContainer;
     };
+
+    std::ostream& operator<<(std::ostream&, Point const&);
+    std::ostream& operator<<(std::ostream&, Rect const&);
 }
+
+using utility::operator<<;
 
 namespace logger {
     enum class Level {

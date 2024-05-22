@@ -24,6 +24,7 @@ private:
 
     ecs::EntityID mPlayerID;
     std::shared_ptr<MovementSystem> mMovementSystem;
+    std::shared_ptr<RenderSystem> mRenderSystem;
     std::shared_ptr<ecs::Coordinator> mCoordinator;
 
     Window mWindow;
