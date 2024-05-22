@@ -7,7 +7,7 @@
 /**
  * @see https://medium.com/@savas/nomad-game-engine-part-2-ecs-9132829188e5
 */
-namespace component {
+namespace components {
     struct Transform {
         Point position;
     };
@@ -27,6 +27,8 @@ namespace component {
     struct Follow;
     struct Joystick;
 }
+
+using namespace components;
 
 
 #endif

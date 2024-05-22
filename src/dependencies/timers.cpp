@@ -1,25 +1,25 @@
-#ifndef APPLICATION_TIMERS_CPP
-#define APPLICATION_TIMERS_CPP
+#ifndef DEPENDENCIES_TIMERS_CPP
+#define DEPENDENCIES_TIMERS_CPP
 
-#include <application.hpp>
 #include <SDL_timer.h>
+#include <dependencies.hpp>
 
 
-void Application::Timer::Start() {
+void Timer::Start() {
     mState = State::kActive;
 
     mStartTicks = SDL_GetTicks64();
     mPausedTicks = 0;
 }
 
-void Application::Timer::Stop() {
+void Timer::Stop() {
     mState = State::kIdle;
 
     mStartTicks = 0;
     mPausedTicks = 0;
 }
 
-void Application::Timer::Pause() {
+void Timer::Pause() {
     if (mState != State::kActive) return;
     mState = State::kSuspended;
 
@@ -27,7 +27,7 @@ void Application::Timer::Pause() {
     mStartTicks = 0;
 }
 
-void Application::Timer::Unpause() {
+void Timer::Unpause() {
     if (mState != State::kSuspended) return;
     mState = State::kActive;
 
@@ -35,7 +35,7 @@ void Application::Timer::Unpause() {
     mPausedTicks = 0;
 }
 
-std::uint64_t Application::Timer::GetTicks() const noexcept {
+std::uint64_t Timer::GetTicks() const noexcept {
     switch (mState) {      
         case State::kActive:
             return SDL_GetTicks64() - mStartTicks;
@@ -47,7 +47,7 @@ std::uint64_t Application::Timer::GetTicks() const noexcept {
     }
 }
 
-std::uint64_t Application::Timer::GetDeltaTime() const noexcept {
+std::uint64_t Timer::GetDeltaTime() const noexcept {
     static Ticks ticksOfPreviousCall = 0;
 
     auto ticksOfCurrentCall = GetTicks();
@@ -57,26 +57,26 @@ std::uint64_t Application::Timer::GetDeltaTime() const noexcept {
     return dt;
 }
 
-Application::Timer::State Application::Timer::GetState() const noexcept {
+Timer::State Timer::GetState() const noexcept {
     return mState;
 }
 
-void Application::FPSRegulator::SetFPS(double FPS) {
+void FPSRegulator::SetFPS(double FPS) {
     mTicksPerFrame = 1000 / FPS;
 }
 
 /**
  * @note At least one call to `SetFPS()` must be made prior.
 */
-double Application::FPSRegulator::GetFPS() const noexcept {
+FTicks FPSRegulator::GetFPS() const noexcept {
     return 1000 / mTicksPerFrame;
 }
 
-void Application::FPSRegulator::PreIntegrate() {
+void FPSRegulator::PreIntegrate() {
     Start();
 }
 
-void Application::FPSRegulator::PostIntegrate() const {
+void FPSRegulator::PostIntegrate() const {
     auto ticksOfCurrentFrame = GetTicks();
     if (ticksOfCurrentFrame < mTicksPerFrame) SDL_Delay(mTicksPerFrame - ticksOfCurrentFrame);
 }

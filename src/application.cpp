@@ -1,8 +1,7 @@
 #ifndef APPLICATION_CPP
 #define APPLICATION_CPP
 
-#include <fstream>
-#include <iomanip>
+#include <iostream>
 
 #include <application.hpp>
 #include <components.hpp>
@@ -46,12 +45,12 @@ void Application::StartGameLoop() {
         mMovementSystem->Integrate(dt);
 
         // Rudimentary logging to show that player actually moves
-        auto playerTransform = mCoordinator->GetComponent<component::Transform>(mPlayerID);
+        auto playerTransform = mCoordinator->GetComponent<components::Transform>(mPlayerID);
         if (playerTransform.position.x != config::kMapHigherBound.x) std::cout << "Player position: (" << playerTransform.position.x << ", " << playerTransform.position.y << ")\n";
         std::cout << "FPS: " << mFPSMonitor.GetFPS(dt) << std::endl;
 
         mRenderer.FillRect();
-        mRenderer.Integrate();
+        mRenderer.RenderPresent();
 
         dt = mTimer.GetDeltaTime();
         mFPSRegulator.PostIntegrate();
@@ -71,20 +70,20 @@ void Application::InitializeDependencies() {
 }
 
 void Application::RegisterComponents() const {
-    mCoordinator->RegisterComponents<component::Transform, component::Motion>();
+    mCoordinator->RegisterComponents<components::Transform, components::Motion>();
 }
 
 void Application::RegisterSystems() {
     mMovementSystem = mCoordinator->RegisterSystem<MovementSystem>(mCoordinator);
-    mCoordinator->SetSystemSignature<MovementSystem, component::Transform, component::Motion>();
+    mCoordinator->SetSystemSignature<MovementSystem, components::Transform, components::Motion>();
 }
 
 void Application::CreateEntities() {
     mPlayerID = mCoordinator->CreateEntity();
-    mCoordinator->InsertComponent<component::Transform>(mPlayerID, {
+    mCoordinator->InsertComponent<components::Transform>(mPlayerID, {
         { (config::kMapHigherBound.x - config::kMapLowerBound.x) / 2, (config::kMapHigherBound.y - config::kMapLowerBound.y) / 2 },
     });
-    mCoordinator->InsertComponent<component::Motion>(mPlayerID, {
+    mCoordinator->InsertComponent<components::Motion>(mPlayerID, {
         { 1, 1 }, { 0, 0 },
     });
 }

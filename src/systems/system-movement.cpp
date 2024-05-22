@@ -11,8 +11,8 @@ MovementSystem::MovementSystem(std::shared_ptr<ecs::Coordinator> coordinator) : 
 
 void MovementSystem::Integrate(std::uint32_t dt) {
     for (auto const& entityID : mEntityIDs) {
-        auto& transform = mCoordinator->GetComponent<component::Transform>(entityID);
-        auto& motion = mCoordinator->GetComponent<component::Motion>(entityID);
+        auto& transform = mCoordinator->GetComponent<components::Transform>(entityID);
+        auto& motion = mCoordinator->GetComponent<components::Motion>(entityID);
 
         transform.position.x += motion.velocity.x * dt;
         transform.position.y += motion.velocity.y * dt;

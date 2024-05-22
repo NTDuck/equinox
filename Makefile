@@ -32,7 +32,7 @@ LDFLAGS =
 
 # Libraries to link
 # LDLIBS = -l"SDL2" -l"SDL2_image" -l"SDL2_ttf" -l"SDL2_mixer"
-LDLIBS = -l"SDL2"
+LDLIBS = -l"SDL2" -l"SDL2_image"
 
 # Target OS detection
 ifeq ($(OS),Windows_NT)   # OS is a preexisting environment variable on Windows

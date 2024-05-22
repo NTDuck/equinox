@@ -1,18 +1,18 @@
-#ifndef APPLICATION_TIMERS_TPP
-#define APPLICATION_TIMERS_TPP
+#ifndef DEPENDENCIES_TIMERS_TPP
+#define DEPENDENCIES_TIMERS_TPP
 
 #include <queue>
-#include <application.hpp>
+#include <dependencies.hpp>
 
 
 template <FPSMonitoringMethod Method>
-void Application::FPSMonitor<Method>::Start() {
+void FPSMonitor<Method>::Start() {
     Timer::Start();
 }
 
 template <FPSMonitoringMethod Method>
 template <typename... Args>
-decltype(auto) Application::FPSMonitor<Method>::GetFPS(Args&&... args) const {
+decltype(auto) FPSMonitor<Method>::GetFPS(Args&&... args) const {
     return std::invoke(&GetFPS<Method>, this, std::forward<Args>(args)...);
 }
 
@@ -21,7 +21,7 @@ decltype(auto) Application::FPSMonitor<Method>::GetFPS(Args&&... args) const {
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, Ticks> Application::FPSMonitor<Method>::GetFPS() const {
+std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, Ticks> FPSMonitor<Method>::GetFPS() const {
     static std::size_t frameCount = 0;
     static Ticks frameRate = frameCount;
     static auto ticksOfPreviousFrame = GetTicks();
@@ -43,7 +43,7 @@ std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval, Ticks> Application::F
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, Ticks> Application::FPSMonitor<Method>::GetFPS(Ticks dt) const {
+std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, Ticks> FPSMonitor<Method>::GetFPS(Ticks dt) const {
     static std::size_t frameCount = 0;
     static Ticks frameRate = frameCount;
     static auto ticksToNextInterval = config::fps::kTicksPerInterval;
@@ -65,7 +65,7 @@ std::enable_if_t<M == FPSMonitoringMethod::kFixedInterval_, Ticks> Application::
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, FTicks> Application::FPSMonitor<Method>::GetFPS() const {
+std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, FTicks> FPSMonitor<Method>::GetFPS() const {
     static std::size_t frameCount = 0;
     static FTicks frameRate = 0;
     static auto ticksOfPreviousInterval = GetTicks();
@@ -87,7 +87,7 @@ std::enable_if_t<M == FPSMonitoringMethod::kFixedFrameTime, FTicks> Application:
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kRealTime, FTicks> Application::FPSMonitor<Method>::GetFPS(Ticks dt) const {
+std::enable_if_t<M == FPSMonitoringMethod::kRealTime, FTicks> FPSMonitor<Method>::GetFPS(Ticks dt) const {
     return TicksPerSecond() / dt;
 }
 
@@ -96,7 +96,7 @@ std::enable_if_t<M == FPSMonitoringMethod::kRealTime, FTicks> Application::FPSMo
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, FTicks> Application::FPSMonitor<Method>::GetFPS() const {
+std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, FTicks> FPSMonitor<Method>::GetFPS() const {
     static const auto ticksOfFirstFrame = GetTicks();
     static std::size_t frameCount = 0;
 
@@ -110,7 +110,7 @@ std::enable_if_t<M == FPSMonitoringMethod::kCommonAverage, FTicks> Application::
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, FTicks> Application::FPSMonitor<Method>::GetFPS(Ticks dt) const {
+std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, FTicks> FPSMonitor<Method>::GetFPS(Ticks dt) const {
     static std::queue<Ticks> sampledTicks;
     static Ticks sumOfSampledTicks = 0;
 
@@ -130,7 +130,7 @@ std::enable_if_t<M == FPSMonitoringMethod::kExactSampling, FTicks> Application::
 */
 template <FPSMonitoringMethod Method>
 template <FPSMonitoringMethod M>
-std::enable_if_t<M == FPSMonitoringMethod::kAverageSampling, FTicks> Application::FPSMonitor<Method>::GetFPS(Ticks dt) const {
+std::enable_if_t<M == FPSMonitoringMethod::kAverageSampling, FTicks> FPSMonitor<Method>::GetFPS(Ticks dt) const {
     static FTicks averageTicks = dt;
     static constexpr double contributionOfCurrentTicks = static_cast<double>(1) / config::fps::kMaxAverageSamplingSamples;
 
