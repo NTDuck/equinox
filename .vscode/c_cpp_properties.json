@@ -5,8 +5,6 @@
             "includePath": [
                 "${workspaceFolder}/include/headers",
                 "${workspaceFolder}/include/templates",
-                "${workspaceFolder}/include/ecs/include/headers",
-                "${workspaceFolder}/include/ecs/include/templates",
                 "${workspaceFolder}/include/sdl2"
             ],
             "defines": [

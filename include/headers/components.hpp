@@ -5,30 +5,26 @@
 
 
 /**
- * @see https://medium.com/@savas/nomad-game-engine-part-2-ecs-9132829188e5
+ * @note Default member initializers make the type non-trivial therefore non-POD.
+ * @see https://docs.unity3d.com/ScriptReference/
 */
 namespace components {
     struct Transform {
         Point position;
+        double rotation;
     };
 
     struct Motion {
-        Point velocity;
-        Point acceleration;
+
     };
 
-    struct Sprite {
-        SpriteSheetID spriteSheetID;
-        SpriteID spriteID;
-    };
+    struct Sprite;
+    struct Collider;
 
-    struct Collision;
     struct Health;
     struct Follow;
     struct Joystick;
 }
-
-using namespace components;
 
 
 #endif

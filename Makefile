@@ -14,10 +14,10 @@ INCLUDE_DIR = include
 ECS_MODULE = ecs
 
 # Sources
-SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp) $(wildcard $(INCLUDE_DIR)/$(ECS_MODULE)/$(SRC_DIR)/*.cpp) $(wildcard $(INCLUDE_DIR)/$(ECS_MODULE)/$(SRC_DIR)/*/*.cpp)
+SRCS := $(wildcard $(SRC_DIR)/*.cpp) $(wildcard $(SRC_DIR)/*/*.cpp)
 
 # Includes
-INCLUDES := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/templates -I$(INCLUDE_DIR)/$(ECS_MODULE)/$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/$(ECS_MODULE)/$(INCLUDE_DIR)/templates -I$(INCLUDE_DIR)/sdl2
+INCLUDES := -I$(INCLUDE_DIR) -I$(INCLUDE_DIR)/headers -I$(INCLUDE_DIR)/templates -I$(INCLUDE_DIR)/sdl2
 
 # C preprocessor settings
 CPPFLAGS = $(INCLUDES) -MMD -MP
