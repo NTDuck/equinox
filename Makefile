@@ -116,3 +116,8 @@ rund:
 clean:
 	@echo Cleaning $(BUILD_DIR) directory
 	$(RM) $(OUTPUT)
+
+.PHONY: runf
+runf:
+	clean
+	run

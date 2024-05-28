@@ -4,7 +4,7 @@
 #include <ecs.hpp>
 
 
-void ecs::Coordinator::Initialize() {
+ecs::Coordinator::Coordinator() {
     mEntityManager = std::make_unique<EntityManager>();
     mComponentManager = std::make_unique<ComponentManager>();
     mSystemManager = std::make_unique<SystemManager>();

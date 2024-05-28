@@ -101,11 +101,10 @@ namespace ecs {
     class ISystem {
     friend Coordinator;
     friend class SystemManager;
-    
     public:
-        virtual void Integrate() = 0;
+        ISystem(std::shared_ptr<Coordinator>);
 
-    private:
+    protected:
         std::set<EntityID> mEntityIDs{};
         std::shared_ptr<Coordinator> mCoordinator;
     };
@@ -129,7 +128,7 @@ namespace ecs {
     class Coordinator : public utility::Singleton<Coordinator> {
     friend utility::Singleton<Coordinator>;
     public:
-        void Initialize();
+        Coordinator();
 
         /* Entity methods */
         EntityID CreateEntity() const;
@@ -160,6 +159,9 @@ namespace ecs {
 
         template <typename System>
         void SetSystemSignature(Signature const&) const;
+
+        template <typename System, typename... Components>
+        void SetSystemSignature() const;
 
     private:
         std::unique_ptr<EntityManager> mEntityManager;

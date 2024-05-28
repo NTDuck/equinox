@@ -13,6 +13,19 @@
 
 /* Enumerations */
 
+/**
+ * @see https://qualified.one/blog/game_dev/six-methods-of-fps-calculation/
+*/
+enum class FPSMonitoringMethod {
+    kFixedInterval,
+    kFixedInterval_,
+    kFixedFrameTime,
+    kRealTime,
+    kCommonAverage,
+    kExactSampling,
+    kAverageSampling,
+};
+
 
 /* Aliases */
 
@@ -29,9 +42,9 @@ using SpriteSheetID = std::uint16_t;
 using SpriteID = std::uint16_t;
 
 
-/* Configurations */
-
 namespace config {
+    #define USE_RAW_TYPE_NAME 1
+
     static constexpr std::uint16_t kMaxTextureID = 4;
     static constexpr SpriteSheetID kMaxSpriteSheetID = 1;
 
@@ -64,6 +77,8 @@ namespace config {
     }
 
     namespace fps {
+        static constexpr FPSMonitoringMethod kFPSMonitoringMethod = FPSMonitoringMethod::kRealTime;
+
         static constexpr Ticks kTicksPerInterval = 1000;
         static constexpr Ticks kFramesPerInterval = 16;
         static constexpr Ticks kMaxExactSamplingSamples = 128;

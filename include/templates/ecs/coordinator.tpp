@@ -45,5 +45,11 @@ void ecs::Coordinator::SetSystemSignature(Signature const& signature) const {
     mSystemManager->SetSignature<System>(signature);
 }
 
+template <typename System, typename... Components>
+void ecs::Coordinator::SetSystemSignature() const {
+    Signature signature;
+    (signature.set(GetComponentID<Components>()), ...);
+    SetSystemSignature<System>(signature);
+}
 
 #endif

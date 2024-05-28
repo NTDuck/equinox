@@ -1,6 +1,7 @@
 #ifndef UTILITIES_POINTER_TPP
 #define UTILITIES_POINTER_TPP
 
+#include <cassert>
 #include <functional>
 #include <type_traits>
 

@@ -15,10 +15,15 @@ namespace components {
     };
 
     struct Motion {
-
+        FPoint velocity;
+        FPoint acceleration;
     };
 
-    struct Sprite;
+    struct Sprite {
+        SpriteSheetID spriteSheetID;
+        SpriteID spriteID;
+    };
+
     struct Collider;
 
     struct Health;

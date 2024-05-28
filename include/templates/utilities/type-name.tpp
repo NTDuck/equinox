@@ -6,13 +6,13 @@
 #include <string_view>
 
 #include <utilities.hpp>
+#include <auxiliaries.hpp>
 
 
 #if __has_include(<cxxabi.h>)
     #include <cxxabi.h>
     #define HAS_CXXABI
 #endif
-
 
 template <typename T>
 std::string_view utility::GetRawTypeName() {
@@ -21,7 +21,9 @@ std::string_view utility::GetRawTypeName() {
 
 template <typename T>
 std::string_view utility::GetTypeName() {
-#ifdef HAS_CXXABI
+#if USE_RAW_TYPE_NAME || !defined(HAS_CXXABI)
+    return GetRawTypeName<T>();
+#else 
     auto impl = []() -> std::string {
         std::int32_t demangleStatus = -1;
         auto rawTypeName = GetRawTypeName<T>();
@@ -35,8 +37,6 @@ std::string_view utility::GetTypeName() {
     };
 
     return impl().operator std::basic_string_view<char, std::char_traits<char>>();
-#else
-    return GetRawTypeName<T>();
 #endif
 }
 

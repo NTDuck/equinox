@@ -19,7 +19,7 @@ ecs::ComponentID ecs::ComponentManager::GetComponentID() const {
     auto componentTypeName = utility::GetTypeName<Component>();
     assert(mComponentIDs.find(componentTypeName) != mComponentIDs.end() && "Component not registered before use");
 
-    return mComponentIDs[componentTypeName];
+    return mComponentIDs.at(componentTypeName);
 }
 
 template <typename Component>
