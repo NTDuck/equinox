@@ -56,7 +56,7 @@ void Application::RegisterSystems() {
 }
 
 void Application::GameLoop() {
-    mRenderer.SetDrawColor({ 0xf2, 0xf3, 0xf4, SDL_ALPHA_OPAQUE });
+    mRenderer.SetDrawColor(utility::GetColor{}("#f2f3f4"));
 
     std::uint64_t dt = 0;
     bool flag = true;

@@ -2,6 +2,8 @@
 #define UTILITIES_HPP
 
 #include <iosfwd>   // https://stackoverflow.com/questions/373142/what-techniques-can-be-used-to-speed-up-c-compilation-times
+#include <stdexcept>
+
 #include <memory>
 #include <functional>
 #include <type_traits>
@@ -51,6 +53,7 @@ constexpr inline bool operator>=(Point const& lhs, std::int32_t rhs) noexcept { 
 
 std::ostream& operator<<(std::ostream&, Point const&);
 std::ostream& operator<<(std::ostream&, Rect const&);
+std::ostream& operator<<(std::ostream&, Color const&);
 
 namespace utility {
     /**
@@ -143,6 +146,58 @@ namespace utility {
     */
     template <typename T>
     std::string_view GetTypeName();
+
+    struct GetColor {
+        constexpr inline Color operator()(std::string_view hexString) const {
+            FormatHexString(hexString);
+            return HexIntToRGBA(HexStringToHexInt(hexString));
+        }
+
+        static constexpr char kPrefix = '#';
+        static constexpr char kAutofill = 'f';
+
+    private:
+        static constexpr inline void FormatHexString(std::string_view& hexString) {
+            if (hexString.front() == kPrefix)
+                hexString.remove_prefix(1);
+            
+            if (hexString.size() > 8)
+                hexString = hexString.substr(0, 8);
+        }
+
+        static constexpr inline std::uint8_t HexCharToUint8(char hexChar) {
+            if ('0' <= hexChar && hexChar <= '9')
+                return hexChar - '0';
+            if ('A' <= hexChar && hexChar <= 'F')
+                return hexChar - 'A' + 10;
+            if ('a' <= hexChar && hexChar <= 'f')
+                return hexChar - 'a' + 10;
+
+            return kAutofill;
+        }
+
+        static constexpr inline std::uint32_t HexStringToHexInt(std::string_view hexString) {
+            std::uint32_t value = 0;
+            std::uint32_t pos = 8 - hexString.size();
+
+            for (auto chr : hexString)
+                value = value * 16 + HexCharToUint8(chr);
+
+            while (pos--)
+                value = value * 16 + HexCharToUint8(kAutofill);
+
+            return value;
+        }
+
+        static constexpr inline Color HexIntToRGBA(std::uint32_t hexInt) {
+            std::uint8_t r = (hexInt >> 24) & 0xff;
+            std::uint8_t g = (hexInt >> 16) & 0xff;
+            std::uint8_t b = (hexInt >> 8) & 0xff;
+            std::uint8_t a = hexInt & 0xff;
+
+            return { r, g, b, a };
+        }
+    };
 }
 
 namespace logger {
