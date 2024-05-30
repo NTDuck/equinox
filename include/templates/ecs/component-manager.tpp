@@ -1,6 +1,8 @@
 #ifndef ECS_COMPONENT_MANAGER_TPP
 #define ECS_COMPONENT_MANAGER_TPP
 
+#include <cassert>
+
 #include <ecs.hpp>
 #include <utilities.hpp>
 
@@ -23,7 +25,7 @@ ecs::ComponentID ecs::ComponentManager::GetComponentID() const {
 }
 
 template <typename Component>
-void ecs::ComponentManager::AddComponent(EntityID entityID, Component const& component) {
+void ecs::ComponentManager::AddComponent(EntityID entityID, typename Component::type const& component) {
     GetComponentArray<Component>()->Insert(entityID, component);
 }
 
@@ -32,9 +34,9 @@ void ecs::ComponentManager::RemoveComponent(EntityID entityID) {
     GetComponentArray<Component>()->Erase(entityID);
 }
 
-template <typename Component>
-Component& ecs::ComponentManager::GetComponent(EntityID entityID) {
-    return GetComponentArray<Component>()->Get(entityID);
+template <typename Component, std::size_t I>
+decltype(auto) ecs::ComponentManager::GetMember(EntityID entityID) {
+    return GetComponentArray<Component>()->template Get<I>(entityID);
 }
 
 template <typename Component>

@@ -10,7 +10,7 @@ void ecs::Coordinator::RegisterComponent() const {
 }
 
 template <typename Component>
-void ecs::Coordinator::AddComponent(EntityID entityID, Component const& component) const {
+void ecs::Coordinator::AddComponent(EntityID entityID, typename Component::type const& component) const {
     mComponentManager->AddComponent<Component>(entityID, component);
 
     auto signature = mEntityManager->GetSignature(entityID);
@@ -20,14 +20,20 @@ void ecs::Coordinator::AddComponent(EntityID entityID, Component const& componen
     mSystemManager->EntitySignatureUpdatedCallback(entityID, signature);
 }
 
-template <typename Component, typename... Args>
-void ecs::Coordinator::EmplaceComponent(EntityID entityID, Args&&... args) const {
-    AddComponent<Component>(entityID, std::forward<Args>(args)...);
+template <typename Component>
+void ecs::Coordinator::RemoveComponent(EntityID entityID) const {
+    mComponentManager->RemoveComponent<Component>(entityID);
+
+    auto signature = mEntityManager->GetSignature(entityID);
+    signature.set(mComponentManager->GetComponentID<Component>(), false);
+    mEntityManager->SetSignature(entityID, signature);
+
+    mSystemManager->EntitySignatureUpdatedCallback(entityID, signature);
 }
 
-template <typename Component>
-Component& ecs::Coordinator::GetComponent(EntityID entityID) const {
-    return mComponentManager->GetComponent<Component>(entityID);
+template <typename Component, std::size_t I>
+decltype(auto) ecs::Coordinator::GetMember(EntityID entityID) const {
+    return mComponentManager->GetMember<Component, I>(entityID);
 }
 
 template <typename Component>

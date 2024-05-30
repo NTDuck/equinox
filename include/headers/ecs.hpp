@@ -9,6 +9,7 @@
 #include <set>
 #include <string_view>
 #include <memory>
+#include <tuple>
 #include <queue>
 
 #include <utilities.hpp>
@@ -44,28 +45,24 @@ namespace ecs {
         std::size_t mEntityCount{};
     };
 
+    template <typename... Args>
+    struct IComponent {
+        using type = std::tuple<Args...>;
+    };
+
     class IComponentArray {
     public:
         virtual ~IComponentArray() = default;
         virtual void EntityDestroyedCallback(EntityID) = 0;
     };
 
+    /**
+     * @note `Component` must be declared via `DECL_COMPONENT()`.
+    */
     template <typename Component>
-    class ComponentArray : public IComponentArray {
+    class ComponentArray : public IComponentArray, public utility::StructOfArray<EntityID, config::kMaxEntityID, typename Component::type> {
     public:
-        void Insert(EntityID, Component const&);
-        void Erase(EntityID);
-        Component& Get(EntityID);
         void EntityDestroyedCallback(EntityID) override;
-
-        template <typename... Args>
-        void Emplace(EntityID, Args&&...);
-
-    private:
-        std::array<Component, kMaxEntityID> mComponentArray{};
-        std::unordered_map<EntityID, std::size_t> mEntityToIndexMap{};   // Maps entity ID to array index
-        std::unordered_map<std::size_t, EntityID> mIndexToEntityMap{};   // Maps array index to entity ID
-        std::size_t mSize{};
     };
 
     class ComponentManager {
@@ -77,13 +74,13 @@ namespace ecs {
         ComponentID GetComponentID() const;
 
         template <typename Component>
-        void AddComponent(EntityID, Component const&);
+        void AddComponent(EntityID, typename Component::type const&);
 
         template <typename Component>
         void RemoveComponent(EntityID);
         
-        template <typename Component>
-        Component& GetComponent(EntityID);
+        template <typename Component, std::size_t I>
+        decltype(auto) GetMember(EntityID);
 
         void EntityDestroyedCallback(EntityID);
 
@@ -139,16 +136,13 @@ namespace ecs {
         void RegisterComponent() const;
 
         template <typename Component>
-        void AddComponent(EntityID, Component const&) const;
-
-        template <typename Component, typename... Args>
-        void EmplaceComponent(EntityID, Args&&...) const;
+        void AddComponent(EntityID, typename Component::type const&) const;
 
         template <typename Component>
         void RemoveComponent(EntityID) const;
 
-        template <typename Component>
-        Component& GetComponent(EntityID) const;
+        template <typename Component, std::size_t I>
+        decltype(auto) GetMember(EntityID) const;
         
         template <typename Component>
         ComponentID GetComponentID() const;

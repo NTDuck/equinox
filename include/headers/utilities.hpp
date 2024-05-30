@@ -8,6 +8,7 @@
 #include <functional>
 #include <type_traits>
 #include <string_view>
+#include <tuple>
 
 #include <auxiliaries.hpp>
 
@@ -128,6 +129,59 @@ namespace utility {
         Container mContainer;
     };
 
+    template <typename ObjectID, ObjectID N, typename Tuple>
+    class StructOfArray;
+
+    /**
+     * @brief Struct of Array Implementation.
+     * 
+     * @tparam ObjectID The type used as identifier for objects, preferably `std::uint32_t`.
+     * @tparam N The maximum number of objects.
+     * @tparam Args The member types.
+     * 
+     * @see https://medium.com/@savas/nomad-game-engine-part-4-4-soa-implementation-1c8e733dc0eb
+     * @see https://austinmorlan.com/posts/entity_component_system/
+    */
+    template <typename ObjectID, ObjectID N, typename... Args>
+    class StructOfArray<ObjectID, N, std::tuple<Args...>> {
+    public:
+        /**
+         * @note For example, the `Object` equivalence of `struct P { int foo; std::string bar; }` is `std::tuple<int, std::string>`.
+        */
+        using Object = std::tuple<Args...>;
+
+        /**
+         * @note For example, the `Member<0>` equivalence of `struct P { int foo; std::string bar; }` is `int`, `Member<1>` is `std::string` and so on.
+        */
+        template <std::size_t I>
+        using Member = std::tuple_element_t<I, Object>;
+
+        static constexpr inline std::size_t GetMemberCount() {
+            static_assert(std::tuple_size_v<Object> == sizeof...(Args));
+            return std::tuple_size_v<Object>;
+        }
+
+        std::size_t GetObjectCount() const noexcept;
+
+        void Insert(ObjectID, Object const&);
+        void Erase(ObjectID);
+
+        template <std::size_t I>
+        Member<I>& Get(ObjectID);
+
+    protected:
+        template <std::size_t I = 0>
+        void InsertObject(ObjectID, Object const&);
+
+        template <std::size_t I = 0>
+        void InsertObject(ObjectID, ObjectID);
+
+        std::tuple<std::array<Args, N>...> mBuffer;
+        std::unordered_map<ObjectID, std::size_t> mObjectIDToMemberIndexMap{};
+        std::unordered_map<std::size_t, ObjectID> mMemberIndexToObjectIDMap{};
+        ObjectID mObjectCount{};
+    };
+
     /**
      * @see https://medium.com/@savas/template-metaprogramming-compile-time-loops-over-class-methods-a243dc346122
     */
@@ -229,6 +283,7 @@ namespace logger {
 
 
 #include <utilities/smart-pointer.tpp>
+#include <utilities/struct-of-array.tpp>
 #include <utilities/type-name.tpp>
 
 #endif

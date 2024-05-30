@@ -12,12 +12,12 @@ void SpriteSheet::Initialize(Renderer const& renderer, std::string_view filePath
 
     utility::SmartPointer<SDL_Texture, IMG_LoadTexture, SDL_DestroyTexture>::Reset(renderer.Get(), filePath.data());
 
-    assert(mSpriteSize > 0 && "Sprite size must be positive integers");
+    assert(spriteSize > 0 && "Sprite size must be positive integers");
     mSpriteSize = spriteSize;
     
     SDL_QueryTexture(Get(), nullptr, nullptr, &mSpriteColumnCount, nullptr);
-    assert(mSpriteColumnCount > 0 && "Sprite column count must be a positive integer");
     mSpriteColumnCount /= mSpriteSize.x;
+    assert(mSpriteColumnCount > 0 && "Sprite column count must be a positive integer");
 }
 
 Rect SpriteSheet::GetSrcRect(SpriteID spriteID) const noexcept {
