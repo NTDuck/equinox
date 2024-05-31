@@ -10,7 +10,7 @@ void ecs::Coordinator::RegisterComponent() const {
 }
 
 template <typename Component>
-void ecs::Coordinator::AddComponent(EntityID entityID, typename Component::type const& component) const {
+void ecs::Coordinator::AddComponent(EntityID entityID, typename Component::Object const& component) const {
     mComponentManager->AddComponent<Component>(entityID, component);
 
     auto signature = mEntityManager->GetSignature(entityID);
@@ -34,6 +34,11 @@ void ecs::Coordinator::RemoveComponent(EntityID entityID) const {
 template <typename Component, std::size_t I>
 decltype(auto) ecs::Coordinator::GetMember(EntityID entityID) const {
     return mComponentManager->GetMember<Component, I>(entityID);
+}
+
+template <ecs::ext::ComponentMember M>
+decltype(auto) ecs::Coordinator::GetMember(EntityID entityID) const {
+    return mComponentManager->GetMember<M>(entityID);
 }
 
 template <typename Component>

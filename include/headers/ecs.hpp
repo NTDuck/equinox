@@ -45,9 +45,57 @@ namespace ecs {
         std::size_t mEntityCount{};
     };
 
+    /**
+     * @note Forward declarations. Requires definition elsewhere, preferably in `components.hpp`.
+    */
+    namespace ext {
+        enum class ComponentMember;
+        class ComponentMap;
+    }
+
+    namespace internal {
+        template <ext::ComponentMember M, typename Component_, std::size_t I>
+        struct ComponentMapData {
+            static constexpr ext::ComponentMember Member = M;
+            using Component = Component_;
+            static constexpr std::size_t Index = I;
+
+        private:
+            virtual void PlaceHolder() = 0;
+        };
+
+        template <typename... Data>
+        class ComponentMap {
+            template <typename T>
+            struct QueryResult {
+                using Component = typename T::Component;
+                static constexpr std::size_t Index = T::Index;            
+            };
+
+            template <ext::ComponentMember M, typename First, typename... Others>
+            struct Query {
+                using Result = std::conditional_t<First::Member == M, QueryResult<First>, typename Query<M, Others...>::Result>;
+            };
+
+            template <ext::ComponentMember M, typename Last>
+            struct Query<M, Last> {
+                using Result = QueryResult<Last>;
+            };
+
+            virtual void PlaceHolder() = 0;
+
+        public:
+            template <ext::ComponentMember M>
+            struct Get {
+                using Component = typename Query<M, Data...>::Result::Component;
+                static constexpr std::size_t Index = Query<M, Data...>::Result::Index;
+            };
+        };
+    }
+
     template <typename... Args>
     struct IComponent {
-        using type = std::tuple<Args...>;
+        using Object = std::tuple<Args...>;
     };
 
     class IComponentArray {
@@ -57,10 +105,10 @@ namespace ecs {
     };
 
     /**
-     * @note `Component` must be declared via `DECL_COMPONENT()`.
+     * @note `Component` must derive from `IComponent<Args...>`.
     */
     template <typename Component>
-    class ComponentArray : public IComponentArray, public utility::StructOfArray<EntityID, config::kMaxEntityID, typename Component::type> {
+    class ComponentArray : public IComponentArray, public utility::StructOfArray<EntityID, config::kMaxEntityID, typename Component::Object> {
     public:
         void EntityDestroyedCallback(EntityID) override;
     };
@@ -74,12 +122,15 @@ namespace ecs {
         ComponentID GetComponentID() const;
 
         template <typename Component>
-        void AddComponent(EntityID, typename Component::type const&);
+        void AddComponent(EntityID, typename Component::Object const&);
 
         template <typename Component>
         void RemoveComponent(EntityID);
         
         template <typename Component, std::size_t I>
+        decltype(auto) GetMember(EntityID);
+
+        template <ext::ComponentMember M, typename ComponentMap = ext::ComponentMap>   // Only way to bypass "incomplete type"
         decltype(auto) GetMember(EntityID);
 
         void EntityDestroyedCallback(EntityID);
@@ -136,12 +187,15 @@ namespace ecs {
         void RegisterComponent() const;
 
         template <typename Component>
-        void AddComponent(EntityID, typename Component::type const&) const;
+        void AddComponent(EntityID, typename Component::Object const&) const;
 
         template <typename Component>
         void RemoveComponent(EntityID) const;
 
         template <typename Component, std::size_t I>
+        decltype(auto) GetMember(EntityID) const;
+
+        template <ext::ComponentMember M>
         decltype(auto) GetMember(EntityID) const;
         
         template <typename Component>
@@ -163,6 +217,8 @@ namespace ecs {
         std::unique_ptr<SystemManager> mSystemManager;
     };
 }
+
+using Member = ecs::ext::ComponentMember;
 
 
 #include <ecs/component-array.tpp>

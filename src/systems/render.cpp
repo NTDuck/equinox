@@ -16,9 +16,9 @@ void systems::Render::Initialize(std::array<std::pair<std::string_view, Point>, 
 
 void systems::Render::Integrate() const {
     for (auto const& entityID : mEntityIDs) {
-        auto& position = mCoordinator->GetMember<components::Transform, 0>(entityID);
-        auto& spriteSheetID = mCoordinator->GetMember<components::Sprite, 0>(entityID);
-        auto& spriteID = mCoordinator->GetMember<components::Sprite, 1>(entityID);
+        auto& position = mCoordinator->GetMember<Member::position>(entityID);
+        auto& spriteSheetID = mCoordinator->GetMember<Member::spriteSheetID>(entityID);
+        auto& spriteID = mCoordinator->GetMember<Member::spriteID>(entityID);
 
         auto spriteSheet = mSpriteSheets[spriteSheetID];
         auto srcRect = spriteSheet.GetSrcRect(spriteID);

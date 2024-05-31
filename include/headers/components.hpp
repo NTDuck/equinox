@@ -5,26 +5,18 @@
 #include <auxiliaries.hpp>
 
 
+enum class ecs::ext::ComponentMember {
+    position, rotation,   // Transform
+    velocity, acceleration,   // Motion
+    spriteSheetID, spriteID,   // Sprite
+};
+
 /**
  * @see https://docs.unity3d.com/ScriptReference/
 */
 namespace components {
-    /**
-     * @param 0 position
-     * @param 1 rotation
-    */
     struct Transform : public ecs::IComponent<Point, double> {};
-
-    /**
-     * @param 0 velocity
-     * @param 1 acceleration
-    */
     struct Motion : public ecs::IComponent<FPoint, FPoint> {};
-
-    /**
-     * @param 0 spriteSheetID
-     * @param 1 spriteID
-    */
     struct Sprite : public ecs::IComponent<SpriteSheetID, SpriteID> {};
 
     struct Collider;
@@ -33,6 +25,15 @@ namespace components {
     struct Follow;
     struct Joystick;
 }
+
+class ecs::ext::ComponentMap : public ecs::internal::ComponentMap<
+    ecs::internal::ComponentMapData<Member::position, components::Transform, 0>,
+    ecs::internal::ComponentMapData<Member::rotation, components::Transform, 1>,
+    ecs::internal::ComponentMapData<Member::velocity, components::Motion, 0>,
+    ecs::internal::ComponentMapData<Member::acceleration, components::Motion, 1>,
+    ecs::internal::ComponentMapData<Member::spriteSheetID, components::Sprite, 0>,
+    ecs::internal::ComponentMapData<Member::spriteID, components::Sprite, 1>
+> {};
 
 
 #endif

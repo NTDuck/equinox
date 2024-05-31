@@ -25,7 +25,7 @@ ecs::ComponentID ecs::ComponentManager::GetComponentID() const {
 }
 
 template <typename Component>
-void ecs::ComponentManager::AddComponent(EntityID entityID, typename Component::type const& component) {
+void ecs::ComponentManager::AddComponent(EntityID entityID, typename Component::Object const& component) {
     GetComponentArray<Component>()->Insert(entityID, component);
 }
 
@@ -37,6 +37,12 @@ void ecs::ComponentManager::RemoveComponent(EntityID entityID) {
 template <typename Component, std::size_t I>
 decltype(auto) ecs::ComponentManager::GetMember(EntityID entityID) {
     return GetComponentArray<Component>()->template Get<I>(entityID);
+}
+
+template <ecs::ext::ComponentMember M, typename ComponentMap>
+decltype(auto) ecs::ComponentManager::GetMember(EntityID entityID) {
+    using ComponentMapData = typename ComponentMap::Get<M>;
+    return GetMember<typename ComponentMapData::Component, ComponentMapData::Index>(entityID);
 }
 
 template <typename Component>
