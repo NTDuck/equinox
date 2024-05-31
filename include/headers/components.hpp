@@ -5,12 +5,6 @@
 #include <auxiliaries.hpp>
 
 
-enum class ecs::ext::ComponentMember {
-    position, rotation,   // Transform
-    velocity, acceleration,   // Motion
-    spriteSheetID, spriteID,   // Sprite
-};
-
 /**
  * @see https://docs.unity3d.com/ScriptReference/
 */
@@ -26,13 +20,19 @@ namespace components {
     struct Joystick;
 }
 
+enum class ecs::ext::ComponentMember {
+    kPosition, kRotation,   // Transform
+    kVelocity, kAcceleration,   // Motion
+    kSpriteSheetID, kSpriteID,   // Sprite
+};
+
 class ecs::ext::ComponentMap : public ecs::internal::ComponentMap<
-    ecs::internal::ComponentMapData<Member::position, components::Transform, 0>,
-    ecs::internal::ComponentMapData<Member::rotation, components::Transform, 1>,
-    ecs::internal::ComponentMapData<Member::velocity, components::Motion, 0>,
-    ecs::internal::ComponentMapData<Member::acceleration, components::Motion, 1>,
-    ecs::internal::ComponentMapData<Member::spriteSheetID, components::Sprite, 0>,
-    ecs::internal::ComponentMapData<Member::spriteID, components::Sprite, 1>
+    ecs::internal::ComponentMapData<Member::kPosition, components::Transform, 0>,
+    ecs::internal::ComponentMapData<Member::kRotation, components::Transform, 1>,
+    ecs::internal::ComponentMapData<Member::kVelocity, components::Motion, 0>,
+    ecs::internal::ComponentMapData<Member::kAcceleration, components::Motion, 1>,
+    ecs::internal::ComponentMapData<Member::kSpriteSheetID, components::Sprite, 0>,
+    ecs::internal::ComponentMapData<Member::kSpriteID, components::Sprite, 1>
 > {};
 
 

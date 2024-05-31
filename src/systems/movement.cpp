@@ -11,9 +11,9 @@ systems::Movement::Movement(std::shared_ptr<ecs::Coordinator> coordinator) : ecs
 
 void systems::Movement::Integrate(std::uint32_t dt) const {
     for (auto const& entityID : mEntityIDs) {
-        auto& position = mCoordinator->GetMember<Member::position>(entityID);
-        auto& velocity = mCoordinator->GetMember<Member::velocity>(entityID);
-        auto& acceleration = mCoordinator->GetMember<Member::acceleration>(entityID);
+        auto& position = mCoordinator->GetMember<Member::kPosition>(entityID);
+        auto& velocity = mCoordinator->GetMember<Member::kVelocity>(entityID);
+        auto& acceleration = mCoordinator->GetMember<Member::kAcceleration>(entityID);
 
         position.x += velocity.x * dt;
         position.y += velocity.y * dt;
