@@ -62,7 +62,7 @@ namespace utility {
      * @see https://stackoverflow.com/questions/38955940/how-to-concatenate-static-strings-at-compile-time
     */
     template <typename CharType, std::basic_string_view<CharType> const&... Strs>
-    struct BasicStringViewConcatenate {
+    struct StaticBasicString {
     private:
         // Concatenate all strings into an `std::array<char>`
         static constexpr inline auto MakeBuffer() noexcept {
@@ -84,7 +84,138 @@ namespace utility {
     };
 
     template <std::string_view const&... Strs>
-    using StringViewConcatenate = BasicStringViewConcatenate<char, Strs...>;
+    using StaticString = StaticBasicString<char, Strs...>;
+
+    template <typename K, typename V>
+    struct StaticPairTtoT {
+        StaticPairTtoT() = delete;
+        ~StaticPairTtoT() = delete;
+
+        using Key = K;
+        using Value = V;
+    };
+
+    template <decltype(auto) K, decltype(auto) V>
+    struct StaticPairVtoV {
+        StaticPairVtoV() = delete;
+        ~StaticPairVtoV() = delete;
+
+        static constexpr decltype(auto) Key = K;
+        static constexpr decltype(auto) Value = V;
+    };
+
+    template <typename K, decltype(auto) V>
+    struct StaticPairTtoV {
+        StaticPairTtoV() = delete;
+        ~StaticPairTtoV() = delete;
+
+        using Key = K;
+        static constexpr decltype(auto) Value = V;
+    };
+
+    template <decltype(auto) K, typename V>
+    struct StaticPairVtoT {
+        StaticPairVtoT() = delete;
+        ~StaticPairVtoT() = delete;
+
+        static constexpr decltype(auto) Key = K;
+        using Value = V;
+    };
+
+    /**
+     * @brief A compile-time map that supports both typename and values.
+     * 
+     * @tparam Pairs Can be either `StaticPairTtoT`, `StaticPairVtoV`, `StaticPairTtoV`, or `StaticPairVtoT`. Do note that using more than one type may result in undefined behaviour.
+    */
+    template <typename... Pairs>
+    class StaticMap {
+        template <typename T, typename U = std::void_t<>>
+        struct HasNestedTypeKey : std::false_type {
+            static constexpr inline bool Result = value;
+        };
+
+        template <typename T>
+        struct HasNestedTypeKey<T, std::void_t<typename T::Key>> : std::true_type {
+            static constexpr inline bool Result = value;
+        };
+
+        template <typename T, typename U = std::void_t<>>
+        struct HasNestedTypeValue : std::false_type {
+            static constexpr inline bool Result = value;
+        };
+
+        template <typename T>
+        struct HasNestedTypeValue<T, std::void_t<typename T::Value>> : std::true_type {
+            static constexpr inline bool Result = value;
+        };
+
+        template <typename Pair, bool = HasNestedTypeKey<Pair>::Result, bool = HasNestedTypeValue<Pair>::Result>
+        struct QueryResult;
+
+        template <typename Pair>
+        struct QueryResult<Pair, true, true> {
+            using Key = typename Pair::Key;
+            using Value = typename Pair::Value;
+        };
+
+        template <typename Pair>
+        struct QueryResult<Pair, false, false> {
+            static constexpr auto Key = Pair::Key;
+            static constexpr auto Value = Pair::Value;
+        };
+
+        template <typename Pair>
+        struct QueryResult<Pair, true, false> {
+            using Key = typename Pair::Key;
+            static constexpr auto Value = Pair::Value;
+        };
+
+        template <typename Pair>
+        struct QueryResult<Pair, false, true> {
+            static constexpr auto Key = Pair::Key;
+            using Value = typename Pair::Value;
+        };    
+
+        template <typename K, typename FirstPair, typename... OtherPairs>
+        struct QueryTypeImpl {
+            using Result = std::conditional_t<
+                HasNestedTypeKey<FirstPair>::Result && std::is_same_v<K, typename FirstPair::Key>,
+                QueryResult<FirstPair>, typename QueryTypeImpl<K, OtherPairs...>::Result
+            >;
+        };
+
+        template <typename K, typename LastPair>
+        struct QueryTypeImpl<K, LastPair> {
+            using Result = QueryResult<LastPair>;
+        };
+
+        template <decltype(auto) K, typename FirstPair, typename... OtherPairs>
+        struct QueryValueImpl {
+            using Result = std::conditional_t<
+                !HasNestedTypeKey<FirstPair>::Result && K == FirstPair::Key,
+                QueryResult<FirstPair>, typename QueryValueImpl<K, OtherPairs...>::Result
+            >;
+        };
+
+        template <decltype(auto) K, typename LastPair>
+        struct QueryValueImpl<K, LastPair> {
+            using Result = QueryResult<LastPair>;
+        };
+
+    public:
+        StaticMap() = delete;
+        ~StaticMap() = delete;
+
+        template <typename K>
+        struct QueryType {
+            using Result = typename QueryTypeImpl<K, Pairs...>::Result;
+        };
+
+        template <decltype(auto) K>
+        struct QueryValue {
+            using Result = typename QueryValueImpl<K, Pairs...>::Result;
+        };
+    };
 
     template <typename T>
     class Singleton {
@@ -277,7 +408,7 @@ namespace logger {
         static constexpr auto mPrefix = kPrefixes[static_cast<std::size_t>(L)];
 
     public:
-        static constexpr inline auto value = utility::StringViewConcatenate<mPrefix, kDelimiter, Strs...>::value;
+        static constexpr inline auto value = utility::StaticString<mPrefix, kDelimiter, Strs...>::value;
     };
 }
 

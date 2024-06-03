@@ -24,48 +24,20 @@ namespace ecs {
     */
     namespace ext {
         enum class ComponentMember;
-        class ComponentMap;
-    }
 
-    namespace internal {
-        template <ext::ComponentMember M, typename Component_, std::size_t I>
-        struct ComponentMapData {
-            ComponentMapData() = delete;
-            ~ComponentMapData() = delete;
+        template <typename Component_, std::size_t I>
+        struct ComponentMapPairValue {
+            ComponentMapPairValue() = delete;
+            ~ComponentMapPairValue() = delete;
 
-            static constexpr ext::ComponentMember Member = M;
             using Component = Component_;
             static constexpr std::size_t Index = I;
         };
 
-        template <typename... Data>
-        class ComponentMap {
-            template <typename T>
-            struct QueryResult {
-                using Component = typename T::Component;
-                static constexpr std::size_t Index = T::Index;            
-            };
-
-            template <ext::ComponentMember M, typename First, typename... Others>
-            struct Query {
-                using Result = std::conditional_t<First::Member == M, QueryResult<First>, typename Query<M, Others...>::Result>;
-            };
-
-            template <ext::ComponentMember M, typename Last>
-            struct Query<M, Last> {
-                using Result = QueryResult<Last>;
-            };
-
-        public:
-            ComponentMap() = delete;
-            ~ComponentMap() = delete;
-
-            template <ext::ComponentMember M>
-            struct Get {
-                using Component = typename Query<M, Data...>::Result::Component;
-                static constexpr std::size_t Index = Query<M, Data...>::Result::Index;
-            };
-        };
+        template <ComponentMember M, typename Component, std::size_t I>
+        using ComponentMapPair = utility::StaticPairVtoT<M, ComponentMapPairValue<Component, I>>;
+        
+        class ComponentMap;
     }
 
     using EntityID = std::uint32_t;

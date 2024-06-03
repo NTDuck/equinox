@@ -41,8 +41,8 @@ decltype(auto) ecs::ComponentManager::GetMember(EntityID entityID) {
 
 template <ecs::ext::ComponentMember M, typename ComponentMap>
 decltype(auto) ecs::ComponentManager::GetMember(EntityID entityID) {
-    using ComponentMapData = typename ComponentMap::Get<M>;
-    return GetMember<typename ComponentMapData::Component, ComponentMapData::Index>(entityID);
+    using ComponentMapPairValue = typename ComponentMap::QueryValue<M>::Result::Value;
+    return GetMember<typename ComponentMapPairValue::Component, ComponentMapPairValue::Index>(entityID);
 }
 
 template <typename Component>
