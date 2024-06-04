@@ -19,27 +19,6 @@
  * @see https://austinmorlan.com/posts/entity_component_system/
 */
 namespace ecs {
-    /**
-     * @note Forward declarations. Requires definition elsewhere, preferably in `components.hpp`.
-    */
-    namespace ext {
-        enum class ComponentMember;
-
-        template <typename Component_, std::size_t I>
-        struct ComponentMapPairValue {
-            ComponentMapPairValue() = delete;
-            ~ComponentMapPairValue() = delete;
-
-            using Component = Component_;
-            static constexpr std::size_t Index = I;
-        };
-
-        template <ComponentMember M, typename Component, std::size_t I>
-        using ComponentMapPair = utility::StaticPairVtoT<M, ComponentMapPairValue<Component, I>>;
-        
-        class ComponentMap;
-    }
-
     using EntityID = std::uint32_t;
     using ComponentID = std::uint16_t;
 
@@ -106,9 +85,6 @@ namespace ecs {
         template <typename Component, std::size_t I>
         decltype(auto) GetMember(EntityID);
 
-        template <ext::ComponentMember M, typename ComponentMap = ext::ComponentMap>   // Only way to bypass "incomplete type"
-        decltype(auto) GetMember(EntityID);
-
         void EntityDestroyedCallback(EntityID);
 
     private:
@@ -171,9 +147,6 @@ namespace ecs {
         template <typename Component, std::size_t I>
         decltype(auto) GetMember(EntityID) const;
 
-        template <ext::ComponentMember M>
-        decltype(auto) GetMember(EntityID) const;
-        
         template <typename Component>
         ComponentID GetComponentID() const;
 
@@ -193,8 +166,6 @@ namespace ecs {
         std::unique_ptr<SystemManager> mSystemManager;
     };
 }
-
-using Member = ecs::ext::ComponentMember;
 
 
 #include <ecs/component-array.tpp>

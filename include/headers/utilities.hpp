@@ -192,7 +192,7 @@ namespace utility {
         template <decltype(auto) K, typename FirstPair, typename... OtherPairs>
         struct QueryValueImpl {
             using Result = std::conditional_t<
-                !HasNestedTypeKey<FirstPair>::Result && K == FirstPair::Key,
+                !HasNestedTypeKey<FirstPair>::Result && std::is_same_v<decltype(K), decltype(FirstPair::Key)> && K == FirstPair::Key,
                 QueryResult<FirstPair>, typename QueryValueImpl<K, OtherPairs...>::Result
             >;
         };

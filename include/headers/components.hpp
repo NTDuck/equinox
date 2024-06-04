@@ -9,9 +9,20 @@
  * @see https://docs.unity3d.com/ScriptReference/
 */
 namespace components {
-    struct Transform : public ecs::IComponent<Point, double> {};
-    struct Motion : public ecs::IComponent<FPoint, FPoint> {};
-    struct Sprite : public ecs::IComponent<SpriteSheetID, SpriteID> {};
+    struct Transform : public ecs::IComponent<Point, double> {
+        static constexpr std::size_t kPosition = 0;
+        static constexpr std::size_t kRotation = 1;
+    };
+
+    struct Motion : public ecs::IComponent<FPoint, FPoint> {
+        static constexpr std::size_t kVelocity = 0;
+        static constexpr std::size_t kAcceleration = 1;
+    };
+
+    struct Sprite : public ecs::IComponent<SpriteSheetID, SpriteID> {
+        static constexpr std::size_t kSpriteSheetID = 0;
+        static constexpr std::size_t kSpriteID = 1;
+    };
 
     struct Collider;
 
@@ -19,21 +30,6 @@ namespace components {
     struct Follow;
     struct Joystick;
 }
-
-enum class ecs::ext::ComponentMember {
-    kPosition, kRotation,   // Transform
-    kVelocity, kAcceleration,   // Motion
-    kSpriteSheetID, kSpriteID,   // Sprite
-};
-
-class ecs::ext::ComponentMap : public utility::StaticMap<
-    ecs::ext::ComponentMapPair<Member::kPosition, components::Transform, 0>,
-    ecs::ext::ComponentMapPair<Member::kRotation, components::Transform, 1>,
-    ecs::ext::ComponentMapPair<Member::kVelocity, components::Motion, 0>,
-    ecs::ext::ComponentMapPair<Member::kAcceleration, components::Motion, 1>,
-    ecs::ext::ComponentMapPair<Member::kSpriteSheetID, components::Sprite, 0>,
-    ecs::ext::ComponentMapPair<Member::kSpriteID, components::Sprite, 1>
-> {};
 
 
 #endif

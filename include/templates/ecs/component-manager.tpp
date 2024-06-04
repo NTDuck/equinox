@@ -39,12 +39,6 @@ decltype(auto) ecs::ComponentManager::GetMember(EntityID entityID) {
     return GetComponentArray<Component>()->template Get<I>(entityID);
 }
 
-template <ecs::ext::ComponentMember M, typename ComponentMap>
-decltype(auto) ecs::ComponentManager::GetMember(EntityID entityID) {
-    using ComponentMapPairValue = typename ComponentMap::QueryValue<M>::Result::Value;
-    return GetMember<typename ComponentMapPairValue::Component, ComponentMapPairValue::Index>(entityID);
-}
-
 template <typename Component>
 std::shared_ptr<ecs::ComponentArray<Component>> ecs::ComponentManager::GetComponentArray() {
     auto componentTypeName = utility::GetTypeName<Component>();

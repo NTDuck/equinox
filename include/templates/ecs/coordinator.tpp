@@ -36,11 +36,6 @@ decltype(auto) ecs::Coordinator::GetMember(EntityID entityID) const {
     return mComponentManager->GetMember<Component, I>(entityID);
 }
 
-template <ecs::ext::ComponentMember M>
-decltype(auto) ecs::Coordinator::GetMember(EntityID entityID) const {
-    return mComponentManager->GetMember<M>(entityID);
-}
-
 template <typename Component>
 ecs::ComponentID ecs::Coordinator::GetComponentID() const {
     return mComponentManager->GetComponentID<Component>();

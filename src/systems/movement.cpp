@@ -10,10 +10,12 @@
 systems::Movement::Movement(std::shared_ptr<ecs::Coordinator> coordinator) : ecs::ISystem(coordinator) {}
 
 void systems::Movement::Integrate(std::uint32_t dt) const {
+    using namespace components;
+
     for (auto const& entityID : mEntityIDs) {
-        auto& position = mCoordinator->GetMember<Member::kPosition>(entityID);
-        auto& velocity = mCoordinator->GetMember<Member::kVelocity>(entityID);
-        auto& acceleration = mCoordinator->GetMember<Member::kAcceleration>(entityID);
+        auto& position = mCoordinator->GetMember<Transform, Transform::kPosition>(entityID);
+        auto& velocity = mCoordinator->GetMember<Motion, Motion::kVelocity>(entityID);
+        auto& acceleration = mCoordinator->GetMember<Motion, Motion::kAcceleration>(entityID);
 
         position.x += velocity.x * dt;
         position.y += velocity.y * dt;
