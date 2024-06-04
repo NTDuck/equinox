@@ -6,8 +6,8 @@
 
 template <typename Component>
 void ecs::ComponentArray<Component>::EntityDestroyedCallback(EntityID entityID) {
-    if (utility::StructOfArray<EntityID, config::kMaxEntityID, typename Component::Object>::mObjectIDToMemberIndexMap.find(entityID) != utility::StructOfArray<EntityID, config::kMaxEntityID, typename Component::Object>::mObjectIDToMemberIndexMap.end())
-        utility::StructOfArray<EntityID, config::kMaxEntityID, typename Component::Object>::Erase(entityID);
+    if (this->mObjectIDToMemberIndexMap.find(entityID) != this->mObjectIDToMemberIndexMap.end())
+        this->Erase(entityID);
 }
 
 

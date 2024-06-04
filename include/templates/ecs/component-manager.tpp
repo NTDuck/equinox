@@ -9,19 +9,19 @@
 
 template <typename Component>
 void ecs::ComponentManager::RegisterComponent() {
-    auto componentTypeName = utility::GetTypeName<Component>();
-    assert(mComponentIDs.find(componentTypeName) == mComponentIDs.end() && "Registering component type more than once");
+    auto componentTypeIndex = std::type_index(typeid(Component));
+    assert(mComponentIDs.find(componentTypeIndex) == mComponentIDs.end() && "Registering component type more than once");
 
-    mComponentIDs.insert({ componentTypeName, mNextComponentID++ });
-    mComponentArrays.insert({ componentTypeName, std::make_shared<ComponentArray<Component>>() });
+    mComponentIDs.insert({ componentTypeIndex, mNextComponentID++ });
+    mComponentArrays.insert({ componentTypeIndex, std::make_shared<ComponentArray<Component>>() });
 }
 
 template <typename Component>
 ecs::ComponentID ecs::ComponentManager::GetComponentID() const {
-    auto componentTypeName = utility::GetTypeName<Component>();
-    assert(mComponentIDs.find(componentTypeName) != mComponentIDs.end() && "Component not registered before use");
+    auto componentTypeIndex = std::type_index(typeid(Component));
+    assert(mComponentIDs.find(componentTypeIndex) != mComponentIDs.end() && "Component not registered before use");
 
-    return mComponentIDs.at(componentTypeName);
+    return mComponentIDs.at(componentTypeIndex);
 }
 
 template <typename Component>
@@ -41,10 +41,10 @@ decltype(auto) ecs::ComponentManager::GetMember(EntityID entityID) {
 
 template <typename Component>
 std::shared_ptr<ecs::ComponentArray<Component>> ecs::ComponentManager::GetComponentArray() {
-    auto componentTypeName = utility::GetTypeName<Component>();
-    assert(mComponentIDs.find(componentTypeName) != mComponentIDs.end() && "Component not registered before use");
+    auto componentTypeIndex = std::type_index(typeid(Component));
+    assert(mComponentIDs.find(componentTypeIndex) != mComponentIDs.end() && "Component not registered before use");
 
-    return std::static_pointer_cast<ComponentArray<Component>>(mComponentArrays[componentTypeName]);
+    return std::static_pointer_cast<ComponentArray<Component>>(mComponentArrays[componentTypeIndex]);
 }
 
 

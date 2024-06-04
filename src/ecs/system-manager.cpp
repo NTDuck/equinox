@@ -10,8 +10,8 @@ void ecs::SystemManager::EntityDestroyedCallback(EntityID entityID) {
 }
 
 void ecs::SystemManager::EntitySignatureUpdatedCallback(EntityID entityID, Signature const& entitySignature) {
-    for (auto const& [systemTypeName, system] : mSystems) {
-        auto const& systemSignature = mSignatures[systemTypeName];
+    for (auto const& [systemTypeIndex, system] : mSystems) {
+        auto const& systemSignature = mSignatures[systemTypeIndex];
         
         if ((entitySignature & systemSignature) == systemSignature)
             system->mEntityIDs.insert(entityID);

@@ -7,9 +7,9 @@
 #include <bitset>
 #include <unordered_map>
 #include <set>
-#include <string_view>
 #include <memory>
 #include <tuple>
+#include <typeindex>
 #include <queue>
 
 #include <utilities.hpp>
@@ -91,8 +91,8 @@ namespace ecs {
         template <typename Component>
         std::shared_ptr<ComponentArray<Component>> GetComponentArray();
 
-        std::unordered_map<std::string_view, ComponentID> mComponentIDs{};
-        std::unordered_map<std::string_view, std::shared_ptr<IComponentArray>> mComponentArrays{};
+        std::unordered_map<std::type_index, ComponentID> mComponentIDs{};
+        std::unordered_map<std::type_index, std::shared_ptr<IComponentArray>> mComponentArrays{};
         ComponentID mNextComponentID{};
     };
 
@@ -121,8 +121,8 @@ namespace ecs {
         void EntitySignatureUpdatedCallback(EntityID, Signature const&);
 
     private:
-        std::unordered_map<std::string_view, Signature> mSignatures{};
-        std::unordered_map<std::string_view, std::shared_ptr<ISystem>> mSystems{};
+        std::unordered_map<std::type_index, Signature> mSignatures{};
+        std::unordered_map<std::type_index, std::shared_ptr<ISystem>> mSystems{};
     };
 
     class Coordinator : public utility::Singleton<Coordinator> {
@@ -164,6 +164,12 @@ namespace ecs {
         std::unique_ptr<EntityManager> mEntityManager;
         std::unique_ptr<ComponentManager> mComponentManager;
         std::unique_ptr<SystemManager> mSystemManager;
+    };
+
+    union Event;
+
+    class EventManager {
+
     };
 }
 
