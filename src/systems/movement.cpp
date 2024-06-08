@@ -1,8 +1,6 @@
 #ifndef SYSTEMS_MOVEMENT_CPP
 #define SYSTEMS_MOVEMENT_CPP
 
-#include <algorithm>
-
 #include <components.hpp>
 #include <systems.hpp>
 
@@ -23,8 +21,11 @@ void systems::Movement::Integrate(std::uint32_t dt) const {
         velocity.x += acceleration.x * dt;
         velocity.y += acceleration.y * dt;
 
-        position.x = std::clamp(position.x, 0, config::sdl::window::kSize.w / 4 * 3);
-        position.y = std::clamp(position.y, 0, config::sdl::window::kSize.h / 4 * 3);
+        position.x = std::clamp(position.x, 0, config::sdl::window::kSize.w);
+        position.y = std::clamp(position.y, 0, config::sdl::window::kSize.h);
+
+        if (position.x >= config::sdl::window::kSize.w || position.y >= config::sdl::window::kSize.h)
+            mCoordinator->PublishEvent(std::make_shared<events::ArbitraryEvent>(entityID));
     }
 }
 

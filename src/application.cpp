@@ -53,6 +53,9 @@ void Application::RegisterSystems() {
     mRenderSystem = mCoordinator->RegisterSystem<systems::Render>(mCoordinator, mRenderer);
     mCoordinator->SetSystemSignature<systems::Render, components::Transform, components::Sprite>();
     mRenderSystem->Initialize(config::kSpriteSheetData);
+
+    mArbitraryLoopSystem = mCoordinator->RegisterSystem<systems::ArbitraryLoop>(mCoordinator);
+    mCoordinator->SubscribeEvent<&systems::ArbitraryLoop::OnArbitraryEvent>(mArbitraryLoopSystem);
 }
 
 void Application::GameLoop() {

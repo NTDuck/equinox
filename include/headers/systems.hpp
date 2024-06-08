@@ -2,6 +2,7 @@
 #define SYSTEMS_HPP
 
 #include <services.hpp>
+#include <events.hpp>
 #include <ecs.hpp>
 
 
@@ -23,6 +24,12 @@ namespace systems {
 
         Renderer const& mRenderer;
         std::array<SpriteSheet, config::kMaxSpriteSheetID> mSpriteSheets;
+    };
+
+    class ArbitraryLoop : public ecs::ISystem {
+    public:
+        ArbitraryLoop(std::shared_ptr<ecs::Coordinator>);
+        void OnArbitraryEvent(std::shared_ptr<events::ArbitraryEvent>) const;
     };
 }
 

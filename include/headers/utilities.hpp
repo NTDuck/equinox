@@ -58,6 +58,74 @@ std::ostream& operator<<(std::ostream&, Color const&);
 
 namespace utility {
     /**
+     * @brief Queries types of a function pointer.
+     * @note The following qualifiers are supported: `const`, `noexcept`, `volatile`, as are any combination of those.
+     * @note Ref-qualifiers (`&` and `&&`) are not supported. 
+    */
+    template <typename T>
+    struct StaticFunctionPointer;
+
+    template <typename Return_, typename Class_, typename... Args>
+    struct StaticFunctionPointer<Return_ (Class_::*)(Args...)> {
+        using Return = Return_;
+        using Class = Class_;
+        using Params = std::tuple<Args...>;
+
+        StaticFunctionPointer() = delete;
+        ~StaticFunctionPointer() = delete;
+    };
+
+    template <typename Return_, typename Class_, typename... Args>
+    struct StaticFunctionPointer<Return_ (Class_::*)(Args...) const> {
+        using Return = Return_;
+        using Class = Class_;
+        using Params = std::tuple<Args...>;
+
+        StaticFunctionPointer() = delete;
+        ~StaticFunctionPointer() = delete;
+    };
+
+    template <typename Return_, typename Class_, typename... Args>
+    struct StaticFunctionPointer<Return_ (Class_::*)(Args...) noexcept> {
+        using Return = Return_;
+        using Class = Class_;
+        using Params = std::tuple<Args...>;
+
+        StaticFunctionPointer() = delete;
+        ~StaticFunctionPointer() = delete;
+    };
+
+    template <typename Return_, typename Class_, typename... Args>
+    struct StaticFunctionPointer<Return_ (Class_::*)(Args...) volatile> {
+        using Return = Return_;
+        using Class = Class_;
+        using Params = std::tuple<Args...>;
+
+        StaticFunctionPointer() = delete;
+        ~StaticFunctionPointer() = delete;
+    };
+
+    template <typename Return_, typename Class_, typename... Args>
+    struct StaticFunctionPointer<Return_ (Class_::*)(Args...) const noexcept> {
+        using Return = Return_;
+        using Class = Class_;
+        using Params = std::tuple<Args...>;
+
+        StaticFunctionPointer() = delete;
+        ~StaticFunctionPointer() = delete;
+    };
+
+    template <typename Return_, typename Class_, typename... Args>
+    struct StaticFunctionPointer<Return_ (Class_::*)(Args...) const volatile> {
+        using Return = Return_;
+        using Class = Class_;
+        using Params = std::tuple<Args...>;
+
+        StaticFunctionPointer() = delete;
+        ~StaticFunctionPointer() = delete;
+    };
+
+    /**
      * @brief Enables string concatenation at compile-time.
      * @see https://stackoverflow.com/questions/38955940/how-to-concatenate-static-strings-at-compile-time
     */
@@ -383,6 +451,14 @@ namespace utility {
             return { r, g, b, a };
         }
     };
+
+    /**
+     * @return `0` for Sunday, `1` for Monday, etc.
+     * @see https://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week
+    */
+    constexpr inline std::uint32_t GetDayOfWeek(std::uint32_t day, std::uint32_t month, std::uint32_t year) {
+        return (day += month < 3 ? year-- : year - 2,23 * month / 9 + day + 4 + year / 4 - year / 100 + year / 400) % 7;
+    }
 }
 
 namespace logger {

@@ -125,6 +125,45 @@ namespace ecs {
         std::unordered_map<std::type_index, std::shared_ptr<ISystem>> mSystems{};
     };
 
+    struct IEvent {
+        virtual ~IEvent() = default;
+    };
+
+    struct IEventHandler {
+        virtual void Invoke(std::shared_ptr<IEvent>) const = 0;
+    };
+
+    /**
+     * @tparam Callback `void(System::*)(std::shared_ptr<Event>)`
+    */
+    template <decltype(auto) Callback>
+    struct EventHandler : IEventHandler {
+        using System = typename utility::StaticFunctionPointer<decltype(Callback)>::Class;
+        using Event = typename std::tuple_element_t<0, typename utility::StaticFunctionPointer<decltype(Callback)>::Params>::element_type;
+
+        EventHandler(std::shared_ptr<System>);
+        void Invoke(std::shared_ptr<IEvent>) const override;
+
+    private:
+        std::shared_ptr<System> mSystem;
+    };
+
+    class EventManager {
+    public:
+        template <typename Event>
+        void Publish(std::shared_ptr<Event>);
+
+        template <decltype(auto) Callback>
+        void Subscribe(std::shared_ptr<typename EventHandler<Callback>::System>);
+
+        template <decltype(auto) Callback>
+        void Unsubscribe(std::shared_ptr<typename EventHandler<Callback>::System>);
+
+    private:
+        using EventHandlers = std::set<std::unique_ptr<IEventHandler>>;
+        std::unordered_map<std::type_index, EventHandlers> mSubscribers;
+    };
+
     class Coordinator : public utility::Singleton<Coordinator> {
     friend utility::Singleton<Coordinator>;
     public:
@@ -160,16 +199,18 @@ namespace ecs {
         template <typename System, typename... Components>
         void SetSystemSignature() const;
 
+        /* Event methods */
+        template <typename Event>
+        void PublishEvent(std::shared_ptr<Event>) const;
+
+        template <decltype(auto) Callback>
+        void SubscribeEvent(std::shared_ptr<typename EventHandler<Callback>::System>) const;
+
     private:
         std::unique_ptr<EntityManager> mEntityManager;
         std::unique_ptr<ComponentManager> mComponentManager;
         std::unique_ptr<SystemManager> mSystemManager;
-    };
-
-    union Event;
-
-    class EventManager {
-
+        std::unique_ptr<EventManager> mEventManager;
     };
 }
 
@@ -177,6 +218,7 @@ namespace ecs {
 #include <ecs/component-array.tpp>
 #include <ecs/component-manager.tpp>
 #include <ecs/system-manager.tpp>
+#include <ecs/event-manager.tpp>
 #include <ecs/coordinator.tpp>
 
 #endif

@@ -8,6 +8,7 @@ ecs::Coordinator::Coordinator() {
     mEntityManager = std::make_unique<EntityManager>();
     mComponentManager = std::make_unique<ComponentManager>();
     mSystemManager = std::make_unique<SystemManager>();
+    mEventManager = std::make_unique<EventManager>();
 }
 
 ecs::EntityID ecs::Coordinator::CreateEntity() const {

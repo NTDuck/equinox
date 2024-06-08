@@ -58,4 +58,15 @@ void ecs::Coordinator::SetSystemSignature() const {
     SetSystemSignature<System>(signature);
 }
 
+template <typename Event>
+void ecs::Coordinator::PublishEvent(std::shared_ptr<Event> event) const {
+    mEventManager->Publish(event);
+}
+
+template <decltype(auto) Callback>
+void ecs::Coordinator::SubscribeEvent(std::shared_ptr<typename EventHandler<Callback>::System> system) const {
+    mEventManager->Subscribe<Callback>(system);
+}
+
+
 #endif

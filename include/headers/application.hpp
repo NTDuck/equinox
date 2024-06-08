@@ -26,6 +26,7 @@ private:
 
     std::shared_ptr<systems::Movement> mMovementSystem;
     std::shared_ptr<systems::Render> mRenderSystem;
+    std::shared_ptr<systems::ArbitraryLoop> mArbitraryLoopSystem;
 
     Window mWindow;
     Renderer mRenderer;
