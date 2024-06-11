@@ -157,7 +157,7 @@ namespace ecs {
         void Subscribe(std::shared_ptr<typename EventHandler<Callback>::System>);
 
         template <decltype(auto) Callback>
-        void Unsubscribe(std::shared_ptr<typename EventHandler<Callback>::System>);
+        void Subscribe(typename EventHandler<Callback>::System*);
 
     private:
         using EventHandlers = std::set<std::unique_ptr<IEventHandler>>;

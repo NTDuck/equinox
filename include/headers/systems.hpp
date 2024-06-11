@@ -31,6 +31,16 @@ namespace systems {
         ArbitraryLoop(std::shared_ptr<ecs::Coordinator>);
         void OnArbitraryEvent(std::shared_ptr<events::ArbitraryEvent>) const;
     };
+
+    class ArbitraryApplicationTerminator : public ecs::ISystem {
+    public:
+        ArbitraryApplicationTerminator();
+        void Integrate(std::shared_ptr<EventManager::Event<SDL_QuitEvent>>) noexcept;
+        bool GetStatus() const noexcept;
+        
+    private:
+        bool isRunning = true;
+    };
 }
 
 

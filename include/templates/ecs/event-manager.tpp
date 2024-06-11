@@ -27,9 +27,9 @@ void ecs::EventManager::Subscribe(std::shared_ptr<typename EventHandler<Callback
 }
 
 template <decltype(auto) Callback>
-void ecs::EventManager::Unsubscribe(std::shared_ptr<typename EventHandler<Callback>::System> system) {
-    // auto& eventHandlers = mSubscribers[typeid(typename EventHandler<Callback>::Event)];
-    // eventHandlers.insert(std::make_unique<EventHandler<Callback>>(system));
+void ecs::EventManager::Subscribe(typename EventHandler<Callback>::System* system) {
+    auto& eventHandlers = mSubscribers[typeid(typename EventHandler<Callback>::Event)];
+    eventHandlers.insert(std::make_unique<EventHandler<Callback>>(system));    
 }
 
 

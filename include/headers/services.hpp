@@ -4,6 +4,9 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
+#include <unordered_set>
+
+#include <ecs.hpp>
 #include <utilities.hpp>
 #include <auxiliaries.hpp>
 
@@ -99,7 +102,45 @@ private:
     template <FPSMonitoringMethod M> std::enable_if_t<M == FPSMonitoringMethod::kAverageSampling, FTicks> GetFPS(Ticks dt) const;
 };
 
+/**
+ * @brief Manages events native to the application framework.
+*/
+class EventManager {
+    using NativeEventUnion = SDL_Event;
+
+    struct IEvent : public ecs::IEvent {
+        virtual void Publish(std::shared_ptr<ecs::Coordinator>, std::shared_ptr<ecs::IEvent>) const = 0;
+    };
+
+public:
+    using EventType = std::uint32_t;
+
+    template <typename NativeEvent>
+    struct Event : public IEvent, public NativeEvent {
+        Event(NativeEvent const&);
+        ~Event() = default;
+
+        void Publish(std::shared_ptr<ecs::Coordinator>, std::shared_ptr<ecs::IEvent>) const override;
+    };
+
+    EventManager(std::shared_ptr<ecs::Coordinator>);
+
+    std::shared_ptr<ecs::IEvent> Dequeue();
+    void Enqueue(std::shared_ptr<ecs::IEvent>) const;
+
+    void SubscribeEventType(EventType);
+    void UnsubscribeEventType(EventType);
+
+private:
+    static std::shared_ptr<IEvent> Discriminate(NativeEventUnion const&);
+
+    std::unordered_set<EventType> mSubscribedEventTypes;
+    NativeEventUnion mNativeEventUnion;
+    std::shared_ptr<ecs::Coordinator> mCoordinator;
+};
+
 
 #include <services/fps-monitor.tpp>
+#include <services/event-manager.tpp>
 
 #endif

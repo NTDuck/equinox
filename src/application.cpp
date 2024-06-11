@@ -35,6 +35,9 @@ void Application::InitializeServices() {
     mWindow.Initialize(config::sdl::window::kTitle, config::sdl::window::kSize, config::sdl::window::kInitFlags);
     mRenderer.Initialize(mWindow, config::sdl::renderer::kDriverIndex, config::sdl::renderer::kInitFlags);
 
+    mEventManager = std::make_unique<EventManager>(mCoordinator);
+    mEventManager->SubscribeEventType(SDL_QUIT);
+
     mTimer.Start();
     mFPSMonitor.Start();
     mFPSRegulator.SetFPS(config::kFPS);
@@ -56,17 +59,17 @@ void Application::RegisterSystems() {
 
     mArbitraryLoopSystem = mCoordinator->RegisterSystem<systems::ArbitraryLoop>(mCoordinator);
     mCoordinator->SubscribeEvent<&systems::ArbitraryLoop::OnArbitraryEvent>(mArbitraryLoopSystem);
+
+    mArbitraryTerminator = mCoordinator->RegisterSystem<systems::ArbitraryApplicationTerminator>();
+    mCoordinator->SubscribeEvent<&systems::ArbitraryApplicationTerminator::Integrate>(mArbitraryTerminator);
 }
 
 void Application::GameLoop() {
     mRenderer.SetDrawColor(utility::GetColor{}("#f2f3f4"));
 
     std::uint64_t dt = 0;
-    bool flag = true;
-    SDL_Event event;
 
     auto playerID = mCoordinator->CreateEntity();
-
     mCoordinator->AddComponent<components::Transform>(playerID, {
         { config::sdl::window::kSize.w >> 1,
         config::sdl::window::kSize.h >> 1, },
@@ -79,10 +82,11 @@ void Application::GameLoop() {
         0, 20,
     });
 
-    while (flag) {
+    while (mArbitraryTerminator->GetStatus()) {
         mFPSRegulator.PreIntegrate();
 
-        while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT) { flag = false; break; }
+        // while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT) { flag = false; break; }
+        while (mEventManager->Dequeue());   // What
 
         mRenderer.Clear();
 
