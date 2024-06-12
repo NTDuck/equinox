@@ -14,14 +14,19 @@ namespace components {
         static constexpr std::size_t kRotation = 1;
     };
 
-    struct Motion : public ecs::IComponent<FPoint, FPoint> {
+    struct Motion : public ecs::IComponent<FPoint, FPoint, FPoint> {
         static constexpr std::size_t kVelocity = 0;
-        static constexpr std::size_t kAcceleration = 1;
+        static constexpr std::size_t kMaxVelocity = 1;
+        static constexpr std::size_t kAcceleration = 2;
     };
 
     struct Sprite : public ecs::IComponent<SpriteSheetID, SpriteID> {
         static constexpr std::size_t kSpriteSheetID = 0;
         static constexpr std::size_t kSpriteID = 1;
+    };
+
+    struct PlayerInput : public ecs::IComponent<bool> {
+        static constexpr std::size_t kEnable = 0;
     };
 
     struct Collider;

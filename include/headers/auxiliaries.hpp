@@ -84,6 +84,13 @@ namespace config {
         static constexpr Ticks kMaxExactSamplingSamples = 128;
         static constexpr Ticks kMaxAverageSamplingSamples = 128;
     }
+
+    namespace key {
+        static constexpr auto kPlayerMoveUp = SDLK_w;
+        static constexpr auto kPlayerMoveLeft = SDLK_a;
+        static constexpr auto kPlayerMoveDown = SDLK_s;
+        static constexpr auto kPlayerMoveRight = SDLK_d;
+    }
 }
 
 

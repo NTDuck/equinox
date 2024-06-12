@@ -26,6 +26,7 @@ private:
 
     std::shared_ptr<systems::Movement> mMovementSystem;
     std::shared_ptr<systems::Render> mRenderSystem;
+    std::shared_ptr<systems::PlayerInput> mPlayerInputSystem;
     std::shared_ptr<systems::ArbitraryLoop> mArbitraryLoopSystem;
     std::shared_ptr<systems::ArbitraryApplicationTerminator> mArbitraryTerminator;
 

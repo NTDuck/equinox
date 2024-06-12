@@ -10,7 +10,7 @@ namespace systems {
     class Movement : public ecs::ISystem {
     public:
         Movement(std::shared_ptr<ecs::Coordinator>);
-        void Integrate(std::uint32_t) const;
+        void Integrate(double) const;
     };
 
     class Render : public ecs::ISystem {
@@ -24,6 +24,12 @@ namespace systems {
 
         Renderer const& mRenderer;
         std::array<SpriteSheet, config::kMaxSpriteSheetID> mSpriteSheets;
+    };
+
+    class PlayerInput : public ecs::ISystem {
+    public:
+        PlayerInput(std::shared_ptr<ecs::Coordinator>);
+        void OnKeyboardEvent(std::shared_ptr<EventManager::Event<SDL_KeyboardEvent>>) const;
     };
 
     class ArbitraryLoop : public ecs::ISystem {

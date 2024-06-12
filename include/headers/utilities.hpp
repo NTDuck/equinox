@@ -457,7 +457,7 @@ namespace utility {
      * @see https://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week
     */
     constexpr inline std::uint32_t GetDayOfWeek(std::uint32_t day, std::uint32_t month, std::uint32_t year) {
-        return (day += month < 3 ? year-- : year - 2,23 * month / 9 + day + 4 + year / 4 - year / 100 + year / 400) % 7;
+        return (day += month < 3 ? year-- : year - 2 , 23 * month / 9 + day + 4 + year / 4 - year / 100 + year / 400) % 7;
     }
 }
 

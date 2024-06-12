@@ -37,6 +37,8 @@ void Application::InitializeServices() {
 
     mEventManager = std::make_unique<EventManager>(mCoordinator);
     mEventManager->SubscribeEventType(SDL_QUIT);
+    mEventManager->SubscribeEventType(SDL_KEYDOWN);
+    mEventManager->SubscribeEventType(SDL_KEYUP);
 
     mTimer.Start();
     mFPSMonitor.Start();
@@ -47,6 +49,7 @@ void Application::RegisterComponents() {
     mCoordinator->RegisterComponent<components::Transform>();
     mCoordinator->RegisterComponent<components::Motion>();
     mCoordinator->RegisterComponent<components::Sprite>();
+    mCoordinator->RegisterComponent<components::PlayerInput>();
 }
 
 void Application::RegisterSystems() {
@@ -56,6 +59,9 @@ void Application::RegisterSystems() {
     mRenderSystem = mCoordinator->RegisterSystem<systems::Render>(mCoordinator, mRenderer);
     mCoordinator->SetSystemSignature<systems::Render, components::Transform, components::Sprite>();
     mRenderSystem->Initialize(config::kSpriteSheetData);
+
+    mPlayerInputSystem = mCoordinator->RegisterSystem<systems::PlayerInput>(mCoordinator);
+    mCoordinator->SubscribeEvent<&systems::PlayerInput::OnKeyboardEvent>(mPlayerInputSystem);
 
     mArbitraryLoopSystem = mCoordinator->RegisterSystem<systems::ArbitraryLoop>(mCoordinator);
     mCoordinator->SubscribeEvent<&systems::ArbitraryLoop::OnArbitraryEvent>(mArbitraryLoopSystem);
@@ -67,7 +73,7 @@ void Application::RegisterSystems() {
 void Application::GameLoop() {
     mRenderer.SetDrawColor(utility::GetColor{}("#f2f3f4"));
 
-    std::uint64_t dt = 0;
+    double dt = 0;
 
     auto playerID = mCoordinator->CreateEntity();
     mCoordinator->AddComponent<components::Transform>(playerID, {
@@ -76,27 +82,25 @@ void Application::GameLoop() {
         0,
     });
     mCoordinator->AddComponent<components::Motion>(playerID, {
-        { 1, 1 }, { 0, 0 },
+        { 0, 0 }, { 4, 4 }, { 0, 0 },
     });
     mCoordinator->AddComponent<components::Sprite>(playerID, {
         0, 20,
     });
+    mCoordinator->AddComponent<components::PlayerInput>(playerID, {
+        true,
+    });
 
     while (mArbitraryTerminator->GetStatus()) {
         mFPSRegulator.PreIntegrate();
-
-        // while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT) { flag = false; break; }
-        while (mEventManager->Dequeue());   // What
-
+        mEventManager->Integrate();
         mRenderer.Clear();
 
         mMovementSystem->Integrate(dt);
         mRenderSystem->Integrate();
 
         mRenderer.RenderPresent();
-
-        dt = mTimer.GetDeltaTime();
-        
+        dt = mTimer.GetDeltaTime() / 10;
         mFPSRegulator.PostIntegrate();
     }
 }

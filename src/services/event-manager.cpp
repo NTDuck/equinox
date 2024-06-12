@@ -6,7 +6,11 @@
 
 EventManager::EventManager(std::shared_ptr<ecs::Coordinator> coordinator) : mCoordinator(coordinator) {}
 
-std::shared_ptr<ecs::IEvent> EventManager::Dequeue() {
+void EventManager::Integrate() const {
+    while (Dequeue());
+}
+
+std::shared_ptr<ecs::IEvent> EventManager::Dequeue() const {
     if (!SDL_PollEvent(&mNativeEventUnion))
         return nullptr;
 
@@ -39,77 +43,129 @@ std::shared_ptr<EventManager::IEvent> EventManager::Discriminate(NativeEventUnio
     case SDL_QUIT:
         return std::make_shared<Event<SDL_QuitEvent>>(event.quit);
 
+    case SDL_APP_TERMINATING:
+    case SDL_APP_LOWMEMORY:
+    case SDL_APP_WILLENTERBACKGROUND:
+    case SDL_APP_DIDENTERBACKGROUND:
+    case SDL_APP_WILLENTERFOREGROUND:
+    case SDL_APP_DIDENTERFOREGROUND:
+    case SDL_LOCALECHANGED:
+        return nullptr;
+
     case SDL_DISPLAYEVENT:
         return std::make_shared<Event<SDL_DisplayEvent>>(event.display);
+
+    case SDL_WINDOWEVENT:
+        return std::make_shared<Event<SDL_WindowEvent>>(event.window);
+
+    case SDL_SYSWMEVENT:
+        return std::make_shared<Event<SDL_SysWMEvent>>(event.syswm);
+
+    case SDL_KEYDOWN:
+    case SDL_KEYUP:
+        return std::make_shared<Event<SDL_KeyboardEvent>>(event.key);
+        
+    case SDL_TEXTEDITING:
+        return std::make_shared<Event<SDL_TextEditingEvent>>(event.edit);
+
+    case SDL_TEXTINPUT:
+        return std::make_shared<Event<SDL_TextInputEvent>>(event.text);
+
+    case SDL_KEYMAPCHANGED:
+        return nullptr;
+
+    case SDL_TEXTEDITING_EXT:
+        return std::make_shared<Event<SDL_TextEditingExtEvent>>(event.editExt);
+
+    case SDL_MOUSEMOTION:
+        return std::make_shared<Event<SDL_MouseMotionEvent>>(event.motion);
+
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+        return std::make_shared<Event<SDL_MouseButtonEvent>>(event.button);
+
+    case SDL_MOUSEWHEEL:
+        return std::make_shared<Event<SDL_MouseWheelEvent>>(event.wheel);
+
+    case SDL_JOYAXISMOTION:
+        return std::make_shared<Event<SDL_JoyAxisEvent>>(event.jaxis);
+
+    case SDL_JOYBALLMOTION:
+        return std::make_shared<Event<SDL_JoyBallEvent>>(event.jball);
+
+    case SDL_JOYHATMOTION:
+        return std::make_shared<Event<SDL_JoyHatEvent>>(event.jhat);
+
+    case SDL_JOYBUTTONDOWN:
+    case SDL_JOYBUTTONUP:
+        return std::make_shared<Event<SDL_JoyButtonEvent>>(event.jbutton);
+
+    case SDL_JOYDEVICEADDED:
+    case SDL_JOYDEVICEREMOVED:
+        return std::make_shared<Event<SDL_JoyDeviceEvent>>(event.jdevice);
+
+    case SDL_JOYBATTERYUPDATED:
+        return std::make_shared<Event<SDL_JoyBatteryEvent>>(event.jbattery);
+
+    case SDL_CONTROLLERAXISMOTION:
+        return std::make_shared<Event<SDL_ControllerAxisEvent>>(event.caxis);
+
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP:
+        return std::make_shared<Event<SDL_ControllerButtonEvent>>(event.cbutton);
+
+    case SDL_CONTROLLERDEVICEADDED:
+    case SDL_CONTROLLERDEVICEREMOVED:
+    case SDL_CONTROLLERDEVICEREMAPPED:
+        return std::make_shared<Event<SDL_ControllerDeviceEvent>>(event.cdevice);
+
+    case SDL_CONTROLLERTOUCHPADDOWN:
+    case SDL_CONTROLLERTOUCHPADMOTION:
+    case SDL_CONTROLLERTOUCHPADUP:
+        return std::make_shared<Event<SDL_ControllerTouchpadEvent>>(event.ctouchpad);
+
+    case SDL_CONTROLLERSENSORUPDATE:
+        return std::make_shared<Event<SDL_ControllerSensorEvent>>(event.csensor);
+
+    case SDL_CONTROLLERSTEAMHANDLEUPDATED:
+        return nullptr;
+
+    case SDL_FINGERDOWN:
+    case SDL_FINGERUP:
+    case SDL_FINGERMOTION:
+        return std::make_shared<Event<SDL_TouchFingerEvent>>(event.tfinger);
+
+    case SDL_DOLLARGESTURE:
+        return std::make_shared<Event<SDL_DollarGestureEvent>>(event.dgesture);
+
+    case SDL_DOLLARRECORD:
+    case SDL_MULTIGESTURE:
+    case SDL_CLIPBOARDUPDATE:
+        return nullptr;
+    
+    case SDL_DROPFILE:
+    case SDL_DROPTEXT:
+    case SDL_DROPBEGIN:
+    case SDL_DROPCOMPLETE:
+        return std::make_shared<Event<SDL_DropEvent>>(event.drop);
+
+    case SDL_AUDIODEVICEADDED:
+    case SDL_AUDIODEVICEREMOVED:
+        return std::make_shared<Event<SDL_AudioDeviceEvent>>(event.adevice);
+
+    case SDL_SENSORUPDATE:
+        return std::make_shared<Event<SDL_SensorEvent>>(event.sensor);
+
+    case SDL_RENDER_TARGETS_RESET:
+    case SDL_RENDER_DEVICE_RESET:
+    case SDL_POLLSENTINEL:
+    case SDL_USEREVENT:   // We won't be using this
+        return nullptr;
 
     default:
         return nullptr;
     }
 }
-
-    // case SDL_WINDOWEVENT:
-    //     return mCoordinator->PublishEvent(std::make_shared<SDL_WindowEvent>(event->window));
-
-    // case SDL_KEYDOWN:
-    // case SDL_KEYUP:
-    //     return mCoordinator->PublishEvent(std::make_shared<SDL_KeyboardEvent>(event->key));
-
-    // case SDL_TEXTEDITING:
-    //     return mCoordinator->PublishEvent(std::make_shared<SDL_TextEditingEvent>(event->edit));
-    
-    // case SDL_TEXTINPUT:
-    //     return mCoordinator->PublishEvent(std::make_shared<SDL_TextInputEvent>(event->text));
-
-    // case SDL_KEYMAPCHANGED:
-    //     return;
-
-    // case SDL_MOUSEMOTION:
-    //     return mCoordinator->PublishEvent(std::make_shared<SDL_MouseMotionEvent>(event->motion));
-
-    // case SDL_MOUSEBUTTONDOWN:
-    // case SDL_MOUSEBUTTONUP:
-    //     return mCoordinator->PublishEvent(std::make_shared<SDL_MouseMotionEvent>(event->motion));
-
-    // default:
-    //     return;
-    // }
-
-// std::shared_ptr<EventQueue::IEvent> EventQueue::GetUnderlyingType(std::shared_ptr<Event> event) noexcept {
-//     switch (event->type) {
-//         // case 0:
-//         //     return event.adevice;
-        
-//         // case 
-//         //     return event.common;
-//         //     return event.window;
-//         //     return event.key;
-//         //     return event.edit;
-//         //     return event.editExt;
-//         //     return event.text;
-
-//             // return event.wheel;
-//             // return event.jaxis;
-//             // return event.jball;
-//             // return event.jhat;
-//             // return event.jbutton;
-//             // return event.jdevice;
-//             // return event.jbattery;
-//             // return event.caxis;
-//             // return event.cbutton;
-//             // return event.cdevice;
-//             // return event.ctouchpad;
-//             // return event.csensor;
-//             // return event.adevice;
-//             // return event.sensor;
-//             // return event.quit;
-//             // return event.user;
-//             // return event.syswm;
-//             // return event.tfinger;
-//             // return event.mgesture;
-//             // return event.dgesture;
-//             // return event.drop;
-//     }
-// }
 
 
 #endif

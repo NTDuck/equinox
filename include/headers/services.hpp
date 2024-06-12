@@ -125,7 +125,8 @@ public:
 
     EventManager(std::shared_ptr<ecs::Coordinator>);
 
-    std::shared_ptr<ecs::IEvent> Dequeue();
+    void Integrate() const;
+    std::shared_ptr<ecs::IEvent> Dequeue() const;
     void Enqueue(std::shared_ptr<ecs::IEvent>) const;
 
     void SubscribeEventType(EventType);
@@ -135,7 +136,7 @@ private:
     static std::shared_ptr<IEvent> Discriminate(NativeEventUnion const&);
 
     std::unordered_set<EventType> mSubscribedEventTypes;
-    NativeEventUnion mNativeEventUnion;
+    mutable NativeEventUnion mNativeEventUnion;
     std::shared_ptr<ecs::Coordinator> mCoordinator;
 };
 
