@@ -1,0 +1,4 @@
+export module ecs.details;
+
+export import :reflection;
+export import :struct_of_array;

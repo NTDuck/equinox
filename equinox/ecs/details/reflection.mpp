@@ -1,0 +1,29 @@
+// #include <tuple>
+
+export module ecs.details:reflection;
+
+import <tuple>;
+
+export namespace ecs::details {
+    template <typename>
+    struct is_tuple : std::false_type {};
+
+    template <typename... Ts>
+    struct is_tuple<std::tuple<Ts...>> : std::true_type {};
+
+    template <typename T>
+    constexpr bool is_tuple_v = is_tuple<T>::value;
+
+    /**
+     * @see https://stackoverflow.com/a/38570185/19113974
+     */
+    template <typename ObjectT, typename... MemberTs, std::size_t... Indices>
+    ObjectT make_struct(std::tuple<MemberTs...> tuple, std::index_sequence<Indices...>) {
+        return { std::get<Indices>(tuple)... };
+    }
+
+    template <typename ObjectT, typename... MemberTs>
+    ObjectT make_struct(std::tuple<MemberTs...> tuple) {
+        return make_struct<ObjectT, MemberTs...>(tuple, std::index_sequence_for<MemberTs...>{});
+    }
+}

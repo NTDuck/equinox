@@ -1,0 +1,179 @@
+#include <concepts>
+
+#include <cstddef>
+#include <cstdint>
+#include <cassert>
+
+#include <tuple>
+#include <type_traits>
+
+#include <array>
+#include <unordered_map>
+
+export module ecs.details:struct_of_array;
+
+import <concepts>;
+
+import <cstddef>;
+import <cstdint>;
+import <cassert>;
+
+import <tuple>;
+import <type_traits>;
+
+import <array>;
+import <unordered_map>;
+
+export namespace ecs::details {
+    template <typename ObjectT, auto N>
+    class StructOfArray;
+
+    /**
+     * @see https://medium.com/@savas/nomad-game-engine-part-4-4-soa-implementation-1c8e733dc0eb
+     * @see https://austinmorlan.com/posts/entity_component_system/
+     */
+    template <typename... MemberTs, auto N>
+    requires (
+        std::integral<decltype(N)>
+        && N > 0
+        && sizeof...(MemberTs) > 0
+        && (std::movable<MemberTs> && ...)
+    )
+    class StructOfArray<std::tuple<MemberTs...>, N> {
+    public:
+        using SizeT = std::size_t;
+
+        using KeyT = decltype(N);
+        using ObjectT = std::tuple<MemberTs...>;
+
+        template <SizeT Index> requires (Index < sizeof...(MemberTs))
+        using MemberT = std::tuple_element_t<Index, ObjectT>;
+
+
+        bool empty() const noexcept {
+            return size() > 0;
+        }
+
+        SizeT size() const noexcept {
+            return count;
+        }
+
+        constexpr SizeT max_size() const noexcept {
+            // return std::get<0>(buffer).max_size();
+            return N;
+        }
+
+        static constexpr SizeT get_members_count() {
+            return sizeof...(MemberTs);
+        }
+
+        void clear() noexcept {
+            keyToIndexMap.clear();
+            indexToKeyMap.clear();
+
+            count = 0;
+        }
+
+        void insert(KeyT key, ObjectT const& object) {
+            assert(!keyToIndexMap.contains(key));
+
+            // Place new object at the end
+            auto indexOfNewObject = count++;
+
+            // Update maps
+            keyToIndexMap[key] = indexOfNewObject;
+            indexToKeyMap[indexOfNewObject] = key;
+
+            insert_impl(indexOfNewObject, object);
+        }
+
+        void insert_or_assign(KeyT key, ObjectT const& object) {
+            if (!keyToIndexMap.contains(key))
+                insert(key, object);
+            else
+                insert_impl(key, object);
+        }
+
+        void emplace(KeyT key, MemberTs&&... members) {
+            insert(key, std::forward<MemberTs>(members)...);
+        }
+
+        void try_emplace(KeyT key, MemberTs&&... members) {
+            if (keyToIndexMap.contains(key))
+                return;
+
+            emplace(key, std::forward<MemberTs>(members)...);
+        }
+
+        void erase(KeyT key) {
+            assert(keyToIndexMap.contains(key));
+
+            // Copy last object (at the end) into erased object's place
+            auto indexOfErasedObject = indexToKeyMap[key];
+            auto indexOfLastObject = --count;
+
+            copy_impl(indexOfErasedObject, indexOfLastObject);
+
+            // Update maps
+            auto keyOfLastObject = indexToKeyMap[indexOfLastObject];
+
+            keyToIndexMap[keyOfLastObject] = indexOfErasedObject;
+            indexToKeyMap[indexOfErasedObject] = keyOfLastObject;
+
+            keyToIndexMap.erase(key);
+            indexToKeyMap.erase(indexOfLastObject);
+        }
+
+        template <SizeT Index> requires (Index < sizeof...(MemberTs))
+        MemberT<Index>& get(KeyT key) {
+            assert(keyToIndexMap.contains(key));
+            return get_impl<Index>(keyToIndexMap[key]);
+        }
+
+        template <SizeT Index> requires (Index < sizeof...(MemberTs))
+        MemberT<Index> const& get(KeyT key) const {
+            assert(keyToIndexMap.contains(key));
+            return get_impl(keyToIndexMap.at(key));
+        }
+
+        bool contains(KeyT key) const {
+            return keyToIndexMap.contains(key);
+        }
+
+    private:
+        void insert_impl(SizeT index, ObjectT const& object) {
+            insert_impl(index, object, std::index_sequence_for<MemberTs...>{});
+        }
+
+        template <SizeT... Indices>
+        void insert_impl(SizeT index, ObjectT const& object, std::index_sequence<Indices...>) {
+            ((get_impl<Indices>(index) = std::get<Indices>(object)), ...);
+        }
+
+        void copy_impl(SizeT destIndex, SizeT srcIndex) {
+            copy_impl(destIndex, srcIndex, std::index_sequence_for<MemberTs...>);
+        }
+
+        template <SizeT... Indices>
+        void copy_impl(SizeT destIndex, SizeT srcIndex, std::index_sequence<Indices...>) {
+            ((get_impl<Indices>(destIndex) = get_impl<Indices>(srcIndex)), ...);
+        }
+
+        template <SizeT Index> requires (Index < sizeof...(MemberTs))
+        MemberT<Index>& get_impl(SizeT index) {
+            return std::get<Index>(tupleOfArrays)[index];
+        }
+
+        template <SizeT Index> requires (Index < sizeof...(MemberTs))
+        MemberT<Index> const& get_impl(SizeT index) const {
+            return std::get<Index>(tupleOfArrays)[index];
+        }
+        
+        std::tuple<std::array<MemberTs, N>...> tupleOfArrays;
+
+        std::unordered_map<KeyT, SizeT> keyToIndexMap;
+        std::unordered_map<SizeT, KeyT> indexToKeyMap;
+
+        SizeT count = 0;
+    };
+}
